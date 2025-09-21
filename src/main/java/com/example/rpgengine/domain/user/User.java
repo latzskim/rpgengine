@@ -17,7 +17,6 @@ import java.util.UUID;
 @Table(name = "users")
 @Getter
 public class User {
-
     @Id
     @Column(name = "id", nullable = false, updatable = false)
     private UUID id;

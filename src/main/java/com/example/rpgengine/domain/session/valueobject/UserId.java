@@ -1,0 +1,30 @@
+package com.example.rpgengine.domain.session.valueobject;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Embeddable;
+import lombok.Getter;
+
+import java.util.UUID;
+
+@Embeddable
+@Getter
+public class UserId {
+    @Column(name = "user_id", nullable = false)
+    private UUID userId;
+
+    private UserId(String value) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException("UserId cannot be null or blank");
+        }
+
+        this.userId = UUID.fromString(value);
+    }
+
+    protected UserId() {
+        // JPA
+    }
+
+    public static UserId fromString(String value) {
+        return new UserId(value);
+    }
+}
