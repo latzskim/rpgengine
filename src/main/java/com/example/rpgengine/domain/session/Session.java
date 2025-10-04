@@ -1,6 +1,7 @@
 package com.example.rpgengine.domain.session;
 
 import com.example.rpgengine.domain.session.event.SessionGMAssigned;
+import com.example.rpgengine.domain.session.event.SessionUserJoined;
 import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.domain.session.valueobject.*;
 import jakarta.persistence.*;
@@ -81,10 +82,7 @@ public class Session {
         this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
         this.visibility = visibility;
-
-        if (Visibility.PRIVATE.equals(visibility)) {
-            this.inviteCode = String.valueOf(new Random().nextInt(100_000, 999_999));
-        }
+        this.inviteCode = String.valueOf(new Random().nextInt(100_000, 999_999));
 
         var gmParticipant = new SessionParticipant(ownerId, ParticipantRole.GAMEMASTER);
         this.participants.add(gmParticipant);
@@ -114,5 +112,11 @@ public class Session {
 
     public List<Object> getDomainEvents() {
         return List.copyOf(domainEvents);
+    }
+
+    public void joinAsPlayer(UserId userId, String invitationCode) {
+        var playerParticipant = new SessionParticipant(userId, ParticipantRole.PLAYER);
+        this.participants.add(playerParticipant);
+        this.domainEvents.add(new SessionUserJoined(this.id, userId));
     }
 }
