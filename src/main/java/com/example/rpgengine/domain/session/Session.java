@@ -7,6 +7,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
@@ -29,7 +30,7 @@ public class Session {
     private LocalDateTime startDate;
 
     @Column(name = "estimated_duration", nullable = false)
-    private Short estimatedDurationInMinutes;
+    private Long estimatedDurationInMinutes;
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
@@ -59,7 +60,6 @@ public class Session {
     )
     private Set<SessionParticipant> participants = new HashSet<>();
 
-
     @Transient
     private List<Object> domainEvents = new ArrayList<>();
 
@@ -67,7 +67,7 @@ public class Session {
             UserId ownerId,
             String description,
             LocalDateTime startDate,
-            Short estimatedDurationInMinutes,
+            Duration duration,
             DifficultyLevel difficulty,
             Visibility visibility,
             Integer minPlayers,
@@ -76,7 +76,7 @@ public class Session {
         this.ownerId = ownerId;
         this.description = description;
         this.startDate = startDate;
-        this.estimatedDurationInMinutes = estimatedDurationInMinutes;
+        this.estimatedDurationInMinutes = duration.toMinutes();
         this.difficulty = difficulty;
         this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
@@ -85,6 +85,9 @@ public class Session {
         if (Visibility.PRIVATE.equals(visibility)) {
             this.inviteCode = String.valueOf(new Random().nextInt(100_000, 999_999));
         }
+
+        var gmParticipant = new SessionParticipant(ownerId, ParticipantRole.GAMEMASTER);
+        this.participants.add(gmParticipant);
     }
 
 

@@ -2,10 +2,11 @@ package com.example.rpgengine.domain.session;
 
 import com.example.rpgengine.domain.session.event.SessionGMAssigned;
 import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
-import com.example.rpgengine.domain.session.valueobject.ParticipantRole;
-import com.example.rpgengine.domain.session.valueobject.UserId;
+import com.example.rpgengine.domain.session.valueobject.*;
 import org.junit.jupiter.api.Test;
 
+import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -13,6 +14,30 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class SessionTest {
+    final int validMinPlayers = 1;
+    final int validMaxPlayers = 10;
+
+    @Test
+    public void shouldOwnerBeAssignedAsADefaultGameMaster() {
+        // given & when:
+        var session = new Session(
+                UserId.fromUUID(UUID.randomUUID()),
+                "Lotr Session",
+                LocalDateTime.now().plusDays(1),
+                Duration.ofHours(5),
+                DifficultyLevel.EASY,
+                Visibility.PUBLIC,
+                validMinPlayers,
+                validMaxPlayers
+        );
+
+        // then:
+        assertThat(session.getParticipants()).hasSize(1);
+        var participant = session.getParticipants().iterator().next();
+        assertThat(participant.getUserId()).isEqualTo(session.getOwnerId());
+        assertThat(participant.getRole()).isEqualTo(ParticipantRole.GAMEMASTER);
+        assertThat(participant.getCharacterId()).isNull();
+    }
 
     @Test
     public void shouldAssignGameMasterIfThereIsNoGameMasterAssignedAlready() {
@@ -27,14 +52,14 @@ class SessionTest {
 
         // then:
         assertThat(session.getParticipants()).hasSize(1);
-        var participant =  session.getParticipants().iterator().next();
+        var participant = session.getParticipants().iterator().next();
 
         assertThat(participant.getUserId()).isEqualTo(gmId);
         assertThat(participant.getRole()).isEqualTo(ParticipantRole.GAMEMASTER);
         assertThat(participant.getCharacterId()).isNull();
 
         assertThat(session.getDomainEvents()).hasSize(1);
-        var event =  session.getDomainEvents().getFirst();
+        var event = session.getDomainEvents().getFirst();
         assertThat(event).isInstanceOf(SessionGMAssigned.class);
         SessionGMAssigned gm = (SessionGMAssigned) event;
         assertThat(gm).isEqualTo(new SessionGMAssigned(session.getId(), gmId));
@@ -48,7 +73,7 @@ class SessionTest {
         session.assignGameMaster(gmId);
 
         assertThat(session.getParticipants()).hasSize(1);
-        var participant =  session.getParticipants().iterator().next();
+        var participant = session.getParticipants().iterator().next();
         assertThat(participant.getRole()).isEqualTo(ParticipantRole.GAMEMASTER);
 
         var otherGmId = UserId.fromUUID(UUID.randomUUID());
