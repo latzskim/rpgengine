@@ -1,6 +1,7 @@
 package com.example.rpgengine.domain.session;
 
 import com.example.rpgengine.domain.session.event.SessionGMAssigned;
+import com.example.rpgengine.domain.session.event.SessionUserJoinRequested;
 import com.example.rpgengine.domain.session.event.SessionUserJoined;
 import com.example.rpgengine.domain.session.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
@@ -13,6 +14,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -136,6 +138,38 @@ class SessionTest {
         assertThrows(InvalidInvitationCodeException.class, () -> {
             session.joinAsPlayer(userId, inviteCode);
         });
+    }
+
+    @Test
+    public void shouldAllowUserToRequestToJoinToPublicSession() {
+        // given:
+        var session = new Session(
+                UserId.fromUUID(UUID.randomUUID()),
+                "Lotr Session",
+                LocalDateTime.now().plusDays(1),
+                Duration.ofHours(5),
+                DifficultyLevel.EASY,
+                Visibility.PUBLIC,
+                validMinPlayers,
+                validMaxPlayers
+        );
+
+        var joinUserId = UserId.fromUUID(UUID.randomUUID());
+        assertThat(session.getJoinRequests()).isEmpty();
+
+        // when:
+        session.joinRequest(joinUserId);
+
+        // then:
+        assertThat(session.getJoinRequests()).hasSize(1);
+        var joinRequest = session.getJoinRequests().iterator().next();
+        assertThat(joinRequest.getUserId()).isEqualTo(joinUserId);
+
+        assertThat(session.getDomainEvents()).hasSize(1);
+        var event = session.getDomainEvents().getFirst();
+        assertThat(event).isInstanceOf(SessionUserJoinRequested.class);
+        SessionUserJoinRequested userJoinRequested = (SessionUserJoinRequested) event;
+        assertThat(userJoinRequested).isEqualTo(new SessionUserJoinRequested(session.getId(), joinUserId));
     }
 
     private Optional<SessionParticipant> findParticipant(UserId userId, Set<SessionParticipant> participants) {

@@ -1,6 +1,7 @@
 package com.example.rpgengine.domain.session;
 
 import com.example.rpgengine.domain.session.event.SessionGMAssigned;
+import com.example.rpgengine.domain.session.event.SessionUserJoinRequested;
 import com.example.rpgengine.domain.session.event.SessionUserJoined;
 import com.example.rpgengine.domain.session.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
@@ -61,6 +62,14 @@ public class Session {
             joinColumns = @JoinColumn(name = "session_id")
     )
     private Set<SessionParticipant> participants = new HashSet<>();
+
+
+    @ElementCollection
+    @CollectionTable(
+            name = "join_requests",
+            joinColumns = @JoinColumn(name = "session_id")
+    )
+    private Set<JoinRequest> joinRequests = new HashSet<>();
 
     @Transient
     private List<Object> domainEvents = new ArrayList<>();
@@ -123,5 +132,11 @@ public class Session {
         var playerParticipant = new SessionParticipant(userId, ParticipantRole.PLAYER);
         this.participants.add(playerParticipant);
         this.domainEvents.add(new SessionUserJoined(this.id, userId));
+    }
+
+    public void joinRequest(UserId joinUserId) {
+        var joinReq = new JoinRequest(joinUserId);
+        this.joinRequests.add(joinReq);
+        this.domainEvents.add(new SessionUserJoinRequested(this.id, joinUserId));
     }
 }
