@@ -20,11 +20,18 @@ public class UserId {
         this.userId = UUID.fromString(value);
     }
 
+    private UserId(UUID value) {
+        this.userId = value;
+    }
+
     protected UserId() {
         // JPA
     }
 
     public static UserId fromString(String value) {
+        return new UserId(value);
+    }
+    public static UserId fromUUID(UUID value) {
         return new UserId(value);
     }
 }

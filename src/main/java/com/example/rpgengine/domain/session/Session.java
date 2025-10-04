@@ -1,23 +1,21 @@
 package com.example.rpgengine.domain.session;
 
+import com.example.rpgengine.domain.session.event.SessionGMAssigned;
 import com.example.rpgengine.domain.session.valueobject.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
+import lombok.Getter;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Random;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 
 @Entity
 @Table(name = "sessions")
 @AllArgsConstructor
+@Getter
 public class Session {
-    @Id
-    @Column(name = "id", nullable = false, updatable = false)
-    private UUID id;
+    @Embedded
+    private SessionId id;
 
     @Embedded
     @AttributeOverride(name = "userId", column = @Column(name = "owner_id", nullable = false, updatable = false))
@@ -60,6 +58,10 @@ public class Session {
     )
     private Set<SessionParticipant> participants = new HashSet<>();
 
+
+    @Transient
+    private List<Object> domainEvents = new ArrayList<>();
+
     public Session(
             UserId ownerId,
             String description,
@@ -87,5 +89,20 @@ public class Session {
 
     protected Session() {
         // JPA
+    }
+
+    // Returns copy of participants
+    public Set<SessionParticipant> getParticipants() {
+        return Set.copyOf(this.participants);
+    }
+
+    public void AssignGameMaster(UserId gmId) {
+        var gmParticipant = new SessionParticipant(gmId, ParticipantRole.GAMEMASTER);
+        this.participants.add(gmParticipant);
+        this.domainEvents.add(new SessionGMAssigned(this.id, gmId));
+    }
+
+    public List<Object> getDomainEvents() {
+        return List.copyOf(domainEvents);
     }
 }

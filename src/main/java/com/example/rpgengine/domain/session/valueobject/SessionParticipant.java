@@ -15,4 +15,23 @@ public class SessionParticipant {
 
     @Embedded
     private CharacterId characterId;
+
+    public SessionParticipant(UserId userId, ParticipantRole role, CharacterId characterId) {
+        this.userId = userId;
+        this.role = role;
+        this.characterId = characterId;
+    }
+
+    public SessionParticipant(UserId userId, ParticipantRole role) {
+        this.userId = userId;
+        this.role = role;
+    }
+
+    protected SessionParticipant() {
+        // jpa
+    }
+
+    public void assignCharacter(CharacterId characterId) {
+        this.characterId = characterId;
+    }
 }
