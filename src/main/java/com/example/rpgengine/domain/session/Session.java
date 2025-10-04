@@ -2,6 +2,7 @@ package com.example.rpgengine.domain.session;
 
 import com.example.rpgengine.domain.session.event.SessionGMAssigned;
 import com.example.rpgengine.domain.session.event.SessionUserJoined;
+import com.example.rpgengine.domain.session.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.domain.session.valueobject.*;
 import jakarta.persistence.*;
@@ -115,6 +116,10 @@ public class Session {
     }
 
     public void joinAsPlayer(UserId userId, String invitationCode) {
+        if (!invitationCode.equals(this.inviteCode)) {
+            throw new InvalidInvitationCodeException();
+        }
+
         var playerParticipant = new SessionParticipant(userId, ParticipantRole.PLAYER);
         this.participants.add(playerParticipant);
         this.domainEvents.add(new SessionUserJoined(this.id, userId));

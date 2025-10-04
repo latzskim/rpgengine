@@ -2,6 +2,7 @@ package com.example.rpgengine.domain.session;
 
 import com.example.rpgengine.domain.session.event.SessionGMAssigned;
 import com.example.rpgengine.domain.session.event.SessionUserJoined;
+import com.example.rpgengine.domain.session.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.domain.session.valueobject.*;
 import org.junit.jupiter.api.Test;
@@ -122,6 +123,19 @@ class SessionTest {
         assertThat(event).isInstanceOf(SessionUserJoined.class);
         SessionUserJoined userJoinedEvent = (SessionUserJoined) event;
         assertThat(userJoinedEvent).isEqualTo(new SessionUserJoined(session.getId(), userId));
+    }
+
+    @Test
+    public void shouldRejectUserWithInvalidInvitationCode() {
+        // given:
+        var session = new Session();
+        var userId = UserId.fromUUID(UUID.randomUUID());
+        var inviteCode = "invalidCode";
+
+        // when & then:
+        assertThrows(InvalidInvitationCodeException.class, () -> {
+            session.joinAsPlayer(userId, inviteCode);
+        });
     }
 
     private Optional<SessionParticipant> findParticipant(UserId userId, Set<SessionParticipant> participants) {
