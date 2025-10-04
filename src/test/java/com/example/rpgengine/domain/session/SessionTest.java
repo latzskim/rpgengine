@@ -5,6 +5,7 @@ import com.example.rpgengine.domain.session.event.SessionUserJoinRequested;
 import com.example.rpgengine.domain.session.event.SessionUserJoined;
 import com.example.rpgengine.domain.session.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
+import com.example.rpgengine.domain.session.exception.SessionPrivateException;
 import com.example.rpgengine.domain.session.valueobject.*;
 import org.junit.jupiter.api.Test;
 
@@ -14,7 +15,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
@@ -170,6 +170,28 @@ class SessionTest {
         assertThat(event).isInstanceOf(SessionUserJoinRequested.class);
         SessionUserJoinRequested userJoinRequested = (SessionUserJoinRequested) event;
         assertThat(userJoinRequested).isEqualTo(new SessionUserJoinRequested(session.getId(), joinUserId));
+    }
+
+    @Test
+    public void shouldRejectUserRequestToJoinToPrivateSession() {
+        // given:
+        var session = new Session(
+                UserId.fromUUID(UUID.randomUUID()),
+                "Lotr Session",
+                LocalDateTime.now().plusDays(1),
+                Duration.ofHours(5),
+                DifficultyLevel.EASY,
+                Visibility.PRIVATE,
+                validMinPlayers,
+                validMaxPlayers
+        );
+
+        var joinUserId = UserId.fromUUID(UUID.randomUUID());
+
+        // when & then:
+        assertThrows(SessionPrivateException.class, () -> {
+            session.joinRequest(joinUserId);
+        });
     }
 
     private Optional<SessionParticipant> findParticipant(UserId userId, Set<SessionParticipant> participants) {

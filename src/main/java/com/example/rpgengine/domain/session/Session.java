@@ -5,6 +5,7 @@ import com.example.rpgengine.domain.session.event.SessionUserJoinRequested;
 import com.example.rpgengine.domain.session.event.SessionUserJoined;
 import com.example.rpgengine.domain.session.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
+import com.example.rpgengine.domain.session.exception.SessionPrivateException;
 import com.example.rpgengine.domain.session.valueobject.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -98,7 +99,6 @@ public class Session {
         this.participants.add(gmParticipant);
     }
 
-
     protected Session() {
         // JPA
     }
@@ -135,6 +135,9 @@ public class Session {
     }
 
     public void joinRequest(UserId joinUserId) {
+        if (this.visibility.equals(Visibility.PRIVATE)) {
+            throw new SessionPrivateException();
+        }
         var joinReq = new JoinRequest(joinUserId);
         this.joinRequests.add(joinReq);
         this.domainEvents.add(new SessionUserJoinRequested(this.id, joinUserId));
