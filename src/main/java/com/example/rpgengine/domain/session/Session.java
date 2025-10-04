@@ -1,6 +1,7 @@
 package com.example.rpgengine.domain.session;
 
 import com.example.rpgengine.domain.session.event.SessionGMAssigned;
+import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.domain.session.valueobject.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.*;
 @AllArgsConstructor
 @Getter
 public class Session {
-    @Embedded
+    @EmbeddedId
     private SessionId id;
 
     @Embedded
@@ -96,7 +97,13 @@ public class Session {
         return Set.copyOf(this.participants);
     }
 
-    public void AssignGameMaster(UserId gmId) {
+    public void assignGameMaster(UserId gmId) {
+        for (var participant : participants) {
+            if (participant.getRole().equals(ParticipantRole.GAMEMASTER)) {
+                throw new SessionGameMasterAlreadyAssignedException();
+            }
+        }
+
         var gmParticipant = new SessionParticipant(gmId, ParticipantRole.GAMEMASTER);
         this.participants.add(gmParticipant);
         this.domainEvents.add(new SessionGMAssigned(this.id, gmId));

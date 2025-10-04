@@ -1,6 +1,7 @@
 package com.example.rpgengine.domain.session;
 
 import com.example.rpgengine.domain.session.event.SessionGMAssigned;
+import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.domain.session.valueobject.ParticipantRole;
 import com.example.rpgengine.domain.session.valueobject.UserId;
 import org.junit.jupiter.api.Test;
@@ -8,7 +9,7 @@ import org.junit.jupiter.api.Test;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 
 class SessionTest {
@@ -22,7 +23,7 @@ class SessionTest {
         assertThat(session.getDomainEvents()).isEmpty();
 
         // when:
-        session.AssignGameMaster(gmId);
+        session.assignGameMaster(gmId);
 
         // then:
         assertThat(session.getParticipants()).hasSize(1);
@@ -39,4 +40,22 @@ class SessionTest {
         assertThat(gm).isEqualTo(new SessionGMAssigned(session.getId(), gmId));
     }
 
+    @Test
+    public void shouldThrowSessionGameMasterAlreadyAssignedExceptionWhenGameMasterIsAlreadyAssigned() {
+        // given:
+        var gmId = UserId.fromUUID(UUID.randomUUID());
+        var session = new Session();
+        session.assignGameMaster(gmId);
+
+        assertThat(session.getParticipants()).hasSize(1);
+        var participant =  session.getParticipants().iterator().next();
+        assertThat(participant.getRole()).isEqualTo(ParticipantRole.GAMEMASTER);
+
+        var otherGmId = UserId.fromUUID(UUID.randomUUID());
+
+        // when & then:
+        assertThrows(SessionGameMasterAlreadyAssignedException.class, () -> {
+            session.assignGameMaster(otherGmId);
+        });
+    }
 }
