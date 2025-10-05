@@ -3,7 +3,6 @@ package com.example.rpgengine.domain.session;
 import com.example.rpgengine.domain.session.event.SessionGMAssigned;
 import com.example.rpgengine.domain.session.event.SessionUserJoinRequested;
 import com.example.rpgengine.domain.session.event.SessionUserJoined;
-import com.example.rpgengine.domain.session.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.domain.session.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.domain.session.exception.SessionPrivateException;
 import com.example.rpgengine.domain.session.valueobject.*;
@@ -124,22 +123,19 @@ public class Session {
         return List.copyOf(domainEvents);
     }
 
-    public void joinAsPlayer(UserId userId, String invitationCode) {
-        if (!invitationCode.equals(this.inviteCode)) {
-            throw new InvalidInvitationCodeException();
-        }
-
+    protected void addParticipant(UserId userId) {
         var playerParticipant = new SessionParticipant(userId, ParticipantRole.PLAYER);
         this.participants.add(playerParticipant);
         this.domainEvents.add(new SessionUserJoined(this.id, userId));
     }
 
-    public void joinRequest(UserId joinUserId) {
-        if (this.visibility.equals(Visibility.PRIVATE)) {
-            throw new SessionPrivateException();
-        }
+    protected void joinRequest(UserId joinUserId) {
         var joinReq = new JoinRequest(joinUserId);
         this.joinRequests.add(joinReq);
         this.domainEvents.add(new SessionUserJoinRequested(this.id, joinUserId));
+    }
+
+    public void join(UserId userId, JoinPolicy invitePolicy) {
+        invitePolicy.join(this, userId);
     }
 }
