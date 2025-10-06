@@ -60,7 +60,11 @@ public class Session {
     @ElementCollection
     @CollectionTable(
             name = "session_participants",
-            joinColumns = @JoinColumn(name = "session_id")
+            joinColumns = @JoinColumn(name = "session_id"),
+            indexes = {
+                    @Index(name = "idx_session_participants_session_id", columnList = "session_id"),
+                    @Index(name = "idx_session_participants_user_id", columnList = "user_id")
+            }
     )
     private Set<SessionParticipant> participants = new HashSet<>();
 
@@ -68,7 +72,11 @@ public class Session {
     @ElementCollection
     @CollectionTable(
             name = "join_requests",
-            joinColumns = @JoinColumn(name = "session_id")
+            joinColumns = @JoinColumn(name = "session_id"),
+            indexes = {
+                    @Index(name = "idx_join_request_session_id", columnList = "session_id"),
+                    @Index(name = "idx_join_request_user_id", columnList = "user_id")
+            }
     )
     private Set<JoinRequest> joinRequests = new HashSet<>();
 
