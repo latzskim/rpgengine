@@ -5,6 +5,7 @@ import com.example.rpgengine.session.domain.event.SessionUserJoinRequested;
 import com.example.rpgengine.session.domain.event.SessionUserJoined;
 import com.example.rpgengine.session.domain.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
+import com.example.rpgengine.session.domain.exception.SessionPrivateException;
 import com.example.rpgengine.session.domain.valueobject.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -143,6 +144,30 @@ class SessionTest {
             default -> fail("event should be eiter SessionUserJoined or SessionUserJoinRequested");
         }
     }
+
+    @Test
+    public void shouldThrowSessionPrivateExceptionWhenNoInviteCode() {
+        // given:
+        var session = new Session(
+                UserId.fromUUID(UUID.randomUUID()),
+                "Lotr Session",
+                LocalDateTime.now().plusDays(1),
+                Duration.ofHours(5),
+                DifficultyLevel.EASY,
+                Visibility.PRIVATE,
+                validMinPlayers,
+                validMaxPlayers
+        );
+
+        var emptyInviteCode = "";
+        var userId = UserId.fromUUID(UUID.randomUUID());
+
+        // when & then:
+        assertThrows(SessionPrivateException.class, () -> {
+            session.join(userId, JoinSessionPolicyFactory.createJoinPolicy(emptyInviteCode));
+        });
+    }
+
 
     @Test
     public void shouldThrowInvalidInvitationCodeExceptionWhenInviteCodeIsInvalid() {

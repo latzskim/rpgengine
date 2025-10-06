@@ -141,4 +141,8 @@ public class Session {
     public boolean validateInviteCode(String inviteCode) {
         return inviteCode.equals(this.inviteCode);
     }
+
+    public boolean isPrivate() {
+        return this.visibility == Visibility.PRIVATE;
+    }
 }
