@@ -85,6 +85,7 @@ public class Session {
             Integer minPlayers,
             Integer maxPlayers
     ) {
+        this.id = new SessionId(UUID.randomUUID());
         this.ownerId = ownerId;
         this.description = description;
         this.startDate = startDate;

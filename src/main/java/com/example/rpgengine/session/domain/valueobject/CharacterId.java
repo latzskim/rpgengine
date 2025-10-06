@@ -6,10 +6,10 @@ import jakarta.persistence.Embeddable;
 @Embeddable
 public class CharacterId {
     @Column(name = "character_id")
-    private Integer characterId;
+    private Integer id;
 
-    public CharacterId(Integer characterId) {
-        this.characterId = characterId;
+    public CharacterId(Integer id) {
+        this.id = id;
     }
 
     protected CharacterId() {

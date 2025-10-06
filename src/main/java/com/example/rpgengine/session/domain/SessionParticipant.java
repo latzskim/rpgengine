@@ -1,7 +1,13 @@
-package com.example.rpgengine.session.domain.valueobject;
+package com.example.rpgengine.session.domain;
 
+import com.example.rpgengine.session.domain.valueobject.CharacterId;
+import com.example.rpgengine.session.domain.valueobject.JoinRequestStatus;
+import com.example.rpgengine.session.domain.valueobject.ParticipantRole;
+import com.example.rpgengine.session.domain.valueobject.UserId;
 import jakarta.persistence.*;
 import lombok.Getter;
+
+import java.time.LocalDateTime;
 
 @Embeddable
 @Getter
@@ -34,4 +40,5 @@ public class SessionParticipant {
     public void assignCharacter(CharacterId characterId) {
         this.characterId = characterId;
     }
+
 }
