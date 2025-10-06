@@ -2,7 +2,7 @@ package com.example.rpgengine.session.application;
 
 import com.example.rpgengine.session.domain.Session;
 import com.example.rpgengine.session.domain.exception.SessionInvalidUserException;
-import com.example.rpgengine.session.domain.port.in.SessionServicePort;
+import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
 import com.example.rpgengine.session.domain.port.out.SessionRepositoryPort;
 import com.example.rpgengine.session.domain.port.out.UserPort;
@@ -13,11 +13,11 @@ import org.springframework.stereotype.Service;
 import java.time.Duration;
 
 @Service
-class SessionService implements SessionServicePort {
+class SessionCommandService implements SessionCommandServicePort {
     private final SessionRepositoryPort sessionRepositoryPort;
     private final UserPort userPort;
 
-    public SessionService(SessionRepositoryPort sessionRepositoryPort, UserPort userPort) {
+    public SessionCommandService(SessionRepositoryPort sessionRepositoryPort, UserPort userPort) {
         this.sessionRepositoryPort = sessionRepositoryPort;
         this.userPort = userPort;
     }
@@ -31,7 +31,7 @@ class SessionService implements SessionServicePort {
         // e.g sessionUser.canBeOwner()..
 
         var session = new Session(
-                createSessionCommand.owner(),
+                sessionUser.id(),
                 createSessionCommand.description(),
                 createSessionCommand.startDate(),
                 Duration.ofMinutes((long) createSessionCommand.durationInMinutes()),
