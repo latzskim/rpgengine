@@ -3,12 +3,12 @@ package com.example.rpgengine.session.domain;
 import com.example.rpgengine.session.domain.event.SessionGMAssigned;
 import com.example.rpgengine.session.domain.event.SessionUserJoinRequested;
 import com.example.rpgengine.session.domain.event.SessionUserJoined;
+import com.example.rpgengine.session.domain.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.session.domain.valueobject.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.Arguments;
-import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
@@ -96,6 +96,7 @@ class SessionTest {
     @ParameterizedTest
     @MethodSource("provideJoinToPublicSession")
     public void shouldJoinToPublicSession(String inviteCode, Class<?> clazz) {
+        // given:
         var session = new Session(
                 UserId.fromUUID(UUID.randomUUID()),
                 "Lotr Session",
@@ -143,6 +144,27 @@ class SessionTest {
         }
     }
 
+    @Test
+    public void shouldThrowInvalidInvitationCodeExceptionWhenInviteCodeIsInvalid() {
+        // given:
+        var session = new Session(
+                UserId.fromUUID(UUID.randomUUID()),
+                "Lotr Session",
+                LocalDateTime.now().plusDays(1),
+                Duration.ofHours(5),
+                DifficultyLevel.EASY,
+                Visibility.PUBLIC,
+                validMinPlayers,
+                validMaxPlayers
+        );
+
+        var userId = UserId.fromUUID(UUID.randomUUID());
+
+        // when & then
+        assertThrows(InvalidInvitationCodeException.class, () -> {
+            session.join(userId, JoinSessionPolicyFactory.createJoinPolicy("invalidCode"));
+        });
+    }
 
     private Optional<SessionParticipant> findParticipant(UserId userId, Set<SessionParticipant> participants) {
         return participants
@@ -157,4 +179,5 @@ class SessionTest {
                 Arguments.of("validCode", SessionUserJoined.class)
         );
     }
+
 }

@@ -137,4 +137,8 @@ public class Session {
     public void join(UserId userId, JoinPolicy invitePolicy) {
         invitePolicy.join(this, userId);
     }
+
+    public boolean validateInviteCode(String inviteCode) {
+        return inviteCode.equals(this.inviteCode);
+    }
 }
