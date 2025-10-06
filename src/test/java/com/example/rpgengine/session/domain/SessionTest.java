@@ -24,22 +24,13 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 
 class SessionTest {
-    final int validMinPlayers = 1;
-    final int validMaxPlayers = 10;
+    final static int validMinPlayers = 1;
+    final static int validMaxPlayers = 10;
 
     @Test
     public void shouldOwnerBeAssignedAsADefaultGameMaster() {
         // given & when:
-        var session = new Session(
-                UserId.fromUUID(UUID.randomUUID()),
-                "Lotr Session",
-                LocalDateTime.now().plusDays(1),
-                Duration.ofHours(5),
-                DifficultyLevel.EASY,
-                Visibility.PUBLIC,
-                validMinPlayers,
-                validMaxPlayers
-        );
+        var session = makePublicSession();
 
         // then:
         assertThat(session.getParticipants()).hasSize(1);
@@ -98,16 +89,7 @@ class SessionTest {
     @MethodSource("provideJoinToPublicSession")
     public void shouldJoinToPublicSession(String inviteCode, Class<?> clazz) {
         // given:
-        var session = new Session(
-                UserId.fromUUID(UUID.randomUUID()),
-                "Lotr Session",
-                LocalDateTime.now().plusDays(1),
-                Duration.ofHours(5),
-                DifficultyLevel.EASY,
-                Visibility.PUBLIC,
-                validMinPlayers,
-                validMaxPlayers
-        );
+        var session = makePublicSession();
 
         var givenInviteCode = switch (inviteCode) {
             case "validCode" -> session.getInviteCode();
@@ -148,16 +130,7 @@ class SessionTest {
     @Test
     public void shouldThrowSessionPrivateExceptionWhenNoInviteCode() {
         // given:
-        var session = new Session(
-                UserId.fromUUID(UUID.randomUUID()),
-                "Lotr Session",
-                LocalDateTime.now().plusDays(1),
-                Duration.ofHours(5),
-                DifficultyLevel.EASY,
-                Visibility.PRIVATE,
-                validMinPlayers,
-                validMaxPlayers
-        );
+        var session = makePrivateSession();
 
         var emptyInviteCode = "";
         var userId = UserId.fromUUID(UUID.randomUUID());
@@ -202,6 +175,32 @@ class SessionTest {
         return Stream.of(
                 Arguments.of("", SessionUserJoinRequested.class),
                 Arguments.of("validCode", SessionUserJoined.class)
+        );
+    }
+
+    private static Session makePrivateSession() {
+        return new Session(
+                UserId.fromUUID(UUID.randomUUID()),
+                "Lotr Session",
+                LocalDateTime.now().plusDays(1),
+                Duration.ofHours(5),
+                DifficultyLevel.EASY,
+                Visibility.PRIVATE,
+                validMinPlayers,
+                validMaxPlayers
+        );
+    }
+
+    private static Session makePublicSession() {
+        return new Session(
+                UserId.fromUUID(UUID.randomUUID()),
+                "Lotr Session",
+                LocalDateTime.now().plusDays(1),
+                Duration.ofHours(5),
+                DifficultyLevel.EASY,
+                Visibility.PUBLIC,
+                validMinPlayers,
+                validMaxPlayers
         );
     }
 
