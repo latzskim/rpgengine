@@ -1,11 +1,13 @@
 package com.example.rpgengine.session.domain;
 
 import com.example.rpgengine.session.domain.event.SessionGMAssigned;
+import com.example.rpgengine.session.domain.event.SessionScheduled;
 import com.example.rpgengine.session.domain.event.SessionUserJoinRequested;
 import com.example.rpgengine.session.domain.event.SessionUserJoined;
 import com.example.rpgengine.session.domain.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.session.domain.exception.SessionPrivateException;
+import com.example.rpgengine.session.domain.exception.SessionScheduleException;
 import com.example.rpgengine.session.domain.valueobject.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -164,12 +166,36 @@ class SessionTest {
         });
     }
 
-    private Optional<SessionParticipant> findParticipant(UserId userId, Set<SessionParticipant> participants) {
-        return participants
-                .stream()
-                .filter(p -> p.getUserId().equals(userId))
-                .findFirst();
+
+    @Test
+    public void shouldScheduleDraftSession() {
+        // given:
+        var session = makePublicSession();
+        assertThat(session.getDomainEvents()).hasSize(0);
+
+        // when:
+        session.scheduleSession();
+
+        // then:
+        assertThat(session.getDomainEvents()).hasSize(1);
+        var event = session.getDomainEvents().getFirst();
+        assertThat(event).isInstanceOf(SessionScheduled.class);
+        SessionScheduled sessionScheduled = (SessionScheduled) event;
+        assertThat(sessionScheduled.sessionId()).isEqualTo(session.getId());
     }
+
+    //    @ParameterizedTest
+//    @EnumSource(value = SessionStatus.class, names = {"DRAFT"}, mode = EnumSource.Mode.EXCLUDE)
+    @Test
+    public void shouldThrowSessionScheduleException() {
+        // given:
+        var session = new Session();
+        session.scheduleSession(); // make it already scheduled
+
+        // when & then:
+        assertThrows(SessionScheduleException.class, session::scheduleSession);
+    }
+
 
     private static Stream<Arguments> provideJoinToPublicSession() {
         return Stream.of(
@@ -203,5 +229,4 @@ class SessionTest {
                 validMaxPlayers
         );
     }
-
 }

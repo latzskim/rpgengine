@@ -1,9 +1,11 @@
 package com.example.rpgengine.session.domain;
 
 import com.example.rpgengine.session.domain.event.SessionGMAssigned;
+import com.example.rpgengine.session.domain.event.SessionScheduled;
 import com.example.rpgengine.session.domain.event.SessionUserJoinRequested;
 import com.example.rpgengine.session.domain.event.SessionUserJoined;
 import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
+import com.example.rpgengine.session.domain.exception.SessionScheduleException;
 import com.example.rpgengine.session.domain.valueobject.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -101,6 +103,11 @@ public class Session {
         // JPA
     }
 
+    public List<Object> getDomainEvents() {
+        return List.copyOf(domainEvents);
+    }
+
+
     // Returns copy of participants
     public Set<SessionParticipant> getParticipants() {
         return Set.copyOf(this.participants);
@@ -118,9 +125,6 @@ public class Session {
         this.domainEvents.add(new SessionGMAssigned(this.id, gmId));
     }
 
-    public List<Object> getDomainEvents() {
-        return List.copyOf(domainEvents);
-    }
 
     protected void addParticipant(UserId userId) {
         var playerParticipant = new SessionParticipant(userId, ParticipantRole.PLAYER);
@@ -144,5 +148,13 @@ public class Session {
 
     public boolean isPrivate() {
         return this.visibility == Visibility.PRIVATE;
+    }
+
+    public void scheduleSession() {
+        if (this.status != SessionStatus.DRAFT) {
+            throw new SessionScheduleException();
+        }
+        this.status = SessionStatus.SCHEDULED;
+        this.domainEvents.add(new SessionScheduled(this.id));
     }
 }
