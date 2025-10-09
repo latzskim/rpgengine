@@ -120,6 +120,10 @@ public class Session {
         return Set.copyOf(this.participants);
     }
 
+    public Set<JoinRequest> getJoinRequests() {
+        return Set.copyOf(this.joinRequests);
+    }
+
     public void assignGameMaster(UserId gmId) {
         for (var participant : participants) {
             if (participant.getRole().equals(ParticipantRole.GAMEMASTER)) {
@@ -146,6 +150,7 @@ public class Session {
     }
 
     public void join(UserId userId, JoinPolicy invitePolicy) {
+        // TODO: validate if len(participants) < max
         invitePolicy.join(this, userId);
     }
 
@@ -166,6 +171,7 @@ public class Session {
     }
 
     public void approveJoinRequest(UserId userId) {
+        // TODO: approve only if len(particiapnts) < maxPlayers
         var request = findRequest(userId);
         request.approve();
 
@@ -187,6 +193,7 @@ public class Session {
     }
 
     public boolean canUserApproveJoinRequests(UserId userId) {
+        // TODO: maybe in the future, both owner and GM can approve
         return this.ownerId.equals(userId);
     }
 }
