@@ -50,8 +50,9 @@ public class SecurityConfig {
     public SecurityFilterChain filterChain(HttpSecurity http, JwtAuthenticationFilter jwtFilter) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
+                        .requestMatchers( "/").permitAll()
+                        .requestMatchers( "/session").permitAll()
                         .requestMatchers("/login", "/register", "/activate").permitAll()
-                        .requestMatchers("/api/**").authenticated()
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

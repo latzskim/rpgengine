@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>RPG Sessions</title>
+    <link rel="stylesheet" href="/css/style.css"> <!-- Optional CSS -->
+</head>
+<body>
+<h1>RPG Sessions</h1>
+<th:block th:each="iterator : ${sessions}">
+    <p th:text=${iterator}></p>
+</th:block>
+<table>
+    <thead>
+    <tr>
+        <th>Description</th>
+        <th>Start Date</th>
+        <th>Difficulty</th>
+        <th>Visibility</th>
+        <th>Min Players</th>
+        <th>Max Players</th>
+        <th>Status</th>
+        <th>Participants</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr th:each="ses : ${sessions}">
+        <td th:text="${ses.description}"></td>
+        <td th:text="${ses.startDate}"></td>
+        <td th:text="${ses.difficulty}"></td>
+        <td th:text="${ses.visibility}"></td>
+        <td th:text="${ses.minPlayers}"></td>
+        <td th:text="${ses.maxPlayers}"></td>
+        <td th:text="${ses.status}"></td>
+        <td>
+            <ul>
+                <li th:each="participant : ${ses.participants}"
+                    th:text="${participant.userId} + ' (' + ${participant.role} + ')'"></li>
+            </ul>
+        </td>
+    </tr>
+    </tbody>
+</table>
+<a href="/sessions/create">Create New Session</a>
+</body>
+</html>
