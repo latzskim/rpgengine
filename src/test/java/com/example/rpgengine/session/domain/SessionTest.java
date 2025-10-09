@@ -1,9 +1,6 @@
 package com.example.rpgengine.session.domain;
 
-import com.example.rpgengine.session.domain.event.SessionGMAssigned;
-import com.example.rpgengine.session.domain.event.SessionScheduled;
-import com.example.rpgengine.session.domain.event.SessionUserJoinRequested;
-import com.example.rpgengine.session.domain.event.SessionUserJoined;
+import com.example.rpgengine.session.domain.event.*;
 import com.example.rpgengine.session.domain.exception.InvalidInvitationCodeException;
 import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.session.domain.exception.SessionPrivateException;
@@ -20,6 +17,7 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
+import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -194,6 +192,72 @@ class SessionTest {
 
         // when & then:
         assertThrows(SessionScheduleException.class, session::scheduleSession);
+    }
+
+    @Test
+    public void shouldBeAbleToAcceptPlayerRequest() {
+        // given:
+        var session = makePublicSession();
+        var userId = UserId.fromUUID(UUID.randomUUID());
+        session.join(userId, JoinSessionPolicyFactory.createJoinPolicy(""));
+        assertThat(session.getJoinRequests()).hasSize(1);
+        assertThat(session.getParticipants()).hasSize(1); // GM
+        assertThat(session.getDomainEvents()).hasSize(1); // SessionUserJoinRequested
+
+        // when:
+        session.approveJoinRequest(userId);
+
+        // then:
+        assertThat(session.getJoinRequests()).hasSize(1);
+        var joinRequest = session
+                .getJoinRequests()
+                .stream()
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+
+        assertThat(joinRequest.getUserId()).isEqualTo(userId);
+        assertThat(joinRequest.getStatus()).isEqualTo(JoinRequestStatus.APPROVED);
+
+        assertThat(session.getParticipants()).hasSize(2); // GM + approved player
+        var foundUser = session
+                .getParticipants()
+                .stream()
+                .filter(p -> p.getUserId().equals(userId))
+                .findAny().orElseThrow(() -> new AssertionError("user should be in participants"));
+        assertThat(foundUser.getRole()).isEqualTo(ParticipantRole.PLAYER);
+
+        assertThat(session.getDomainEvents()).hasSize(2);
+        var event = session.getDomainEvents().getLast();
+        assertThat(event).isInstanceOf(SessionUserJoined.class);
+    }
+
+    @Test
+    public void shouldBeAbleToRejectPlayer() {
+        // given:
+        var session = makePublicSession();
+        var userId = UserId.fromUUID(UUID.randomUUID());
+        session.join(userId, JoinSessionPolicyFactory.createJoinPolicy(""));
+        assertThat(session.getJoinRequests()).hasSize(1);
+        assertThat(session.getParticipants()).hasSize(1); // GM
+        assertThat(session.getDomainEvents()).hasSize(1); // SessionUserJoinRequested
+
+        // when:
+        session.rejectJoinRequest(userId);
+
+        // then:
+        assertThat(session.getJoinRequests()).hasSize(1);
+        var joinRequest = session
+                .getJoinRequests()
+                .stream()
+                .findFirst()
+                .orElseThrow(AssertionError::new);
+        assertThat(joinRequest.getUserId()).isEqualTo(userId);
+        assertThat(joinRequest.getStatus()).isEqualTo(JoinRequestStatus.REJECTED);
+
+        assertThat(session.getParticipants()).hasSize(1); // GM
+        assertThat(session.getDomainEvents()).hasSize(2); // SessionUserJoinRequested
+        var event = session.getDomainEvents().getLast();
+        assertThat(event).isInstanceOf(SessionUserRejected.class);
     }
 
 

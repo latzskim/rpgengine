@@ -8,6 +8,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Embeddable
+@Getter
 public class JoinRequest {
     @Getter
     @Embedded
@@ -28,5 +29,13 @@ public class JoinRequest {
         this.userId = userId;
         this.status = JoinRequestStatus.PENDING;
         this.createdAt = LocalDateTime.now();
+    }
+
+    protected void approve() {
+        this.status = JoinRequestStatus.APPROVED;
+    }
+
+    protected void reject() {
+        this.status = JoinRequestStatus.REJECTED;
     }
 }

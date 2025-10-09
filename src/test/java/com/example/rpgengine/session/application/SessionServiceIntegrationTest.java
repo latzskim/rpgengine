@@ -3,6 +3,7 @@ package com.example.rpgengine.session.application;
 import com.example.rpgengine.session.domain.SessionParticipant;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
+import com.example.rpgengine.session.domain.port.in.command.HandleUserJoinSessionDecisionCommand;
 import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
 import com.example.rpgengine.session.domain.port.out.SessionRepositoryPort;
 import com.example.rpgengine.session.domain.port.out.UserPort;
@@ -142,6 +143,59 @@ class SessionServiceIntegrationTest {
                 .orElseThrow(() -> new AssertionError("Join request not found in database"));
 
         assertThat(joinToSessionRequest.getUserId()).isEqualTo(requestingUserId);
+    }
+
+    @Test
+    @Order(4)
+    public void shouldBeAbleToApproveRequest() {
+        // given:
+        var session = sessionRepositoryPort.findById(sessionId)
+                .orElseThrow(() -> new AssertionError("Session not found in database"));
+        final boolean shouldApproveRequest = true;
+
+        assertThat(session.getJoinRequests()).hasSize(1);
+        assertThat(session.getParticipants()).hasSize(2); // GM + one player with invite link
+
+        var joinRequest = session
+                .getJoinRequests()
+                .stream()
+                .findFirst()
+                .orElse(null);
+
+        assertThat(joinRequest).isNotNull();
+
+        // when:
+        sessionCommandServicePort.handleUserJoinRequest(new HandleUserJoinSessionDecisionCommand(
+                session.getOwnerId(),
+                session.getId(),
+                joinRequest.getUserId(),
+                shouldApproveRequest
+        ));
+
+        // then:
+        var updatedSession = sessionRepositoryPort.findById(sessionId)
+                .orElseThrow(() -> new AssertionError("Session not found in database"));
+
+        assertThat(updatedSession.getJoinRequests()).hasSize(1);
+        var updatedJoinRequest = updatedSession
+                .getJoinRequests()
+                .stream()
+                .findFirst()
+                .orElseThrow(() -> new AssertionError("Join request not found in database"));
+
+        assertThat(updatedJoinRequest.getUserId()).isEqualTo(joinRequest.getUserId());
+        assertThat(updatedJoinRequest.getStatus()).isEqualTo(JoinRequestStatus.APPROVED);
+
+        assertThat(updatedSession.getParticipants()).hasSize(3); // GM + 1 player with invite link + one approved
+        var participant = updatedSession
+                .getParticipants()
+                .stream()
+                .filter(p -> p.getUserId().equals(joinRequest.getUserId()))
+                .findAny()
+                .orElseThrow(() -> new AssertionError("User not found in database"));
+
+        assertThat(participant.getUserId()).isEqualTo(joinRequest.getUserId());
+        assertThat(participant.getRole()).isEqualTo(ParticipantRole.PLAYER);
     }
 
 

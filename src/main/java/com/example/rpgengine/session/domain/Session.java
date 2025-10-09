@@ -1,11 +1,9 @@
 package com.example.rpgengine.session.domain;
 
-import com.example.rpgengine.session.domain.event.SessionGMAssigned;
-import com.example.rpgengine.session.domain.event.SessionScheduled;
-import com.example.rpgengine.session.domain.event.SessionUserJoinRequested;
-import com.example.rpgengine.session.domain.event.SessionUserJoined;
+import com.example.rpgengine.session.domain.event.*;
 import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.session.domain.exception.SessionScheduleException;
+import com.example.rpgengine.session.domain.exception.SessionUserNotFound;
 import com.example.rpgengine.session.domain.valueobject.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -165,5 +163,30 @@ public class Session {
         }
         this.status = SessionStatus.SCHEDULED;
         this.domainEvents.add(new SessionScheduled(this.id));
+    }
+
+    public void approveJoinRequest(UserId userId) {
+        var request = findRequest(userId);
+        request.approve();
+
+        this.addParticipant(userId);
+    }
+
+    public void rejectJoinRequest(UserId userId) {
+        var request = findRequest(userId);
+        request.reject();
+
+        this.domainEvents.add(new SessionUserRejected(this.id, userId));
+    }
+
+    private JoinRequest findRequest(UserId userId) {
+        return this.getJoinRequests()
+                .stream()
+                .filter(p -> p.getUserId().equals(userId))
+                .findFirst().orElseThrow(SessionUserNotFound::new);
+    }
+
+    public boolean canUserApproveJoinRequests(UserId userId) {
+        return this.ownerId.equals(userId);
     }
 }

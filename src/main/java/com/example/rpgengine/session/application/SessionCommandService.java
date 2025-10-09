@@ -2,10 +2,12 @@ package com.example.rpgengine.session.application;
 
 import com.example.rpgengine.session.domain.JoinSessionPolicyFactory;
 import com.example.rpgengine.session.domain.Session;
+import com.example.rpgengine.session.domain.exception.SessionForbiddenException;
 import com.example.rpgengine.session.domain.exception.SessionInvalidUserException;
 import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
+import com.example.rpgengine.session.domain.port.in.command.HandleUserJoinSessionDecisionCommand;
 import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
 import com.example.rpgengine.session.domain.port.out.SessionRepositoryPort;
 import com.example.rpgengine.session.domain.port.out.UserPort;
@@ -25,6 +27,7 @@ class SessionCommandService implements SessionCommandServicePort {
         this.userPort = userPort;
     }
 
+    @Override
     @Transactional
     public SessionId createSession(CreateSessionCommand createSessionCommand) {
         var sessionUser = userPort
@@ -58,6 +61,27 @@ class SessionCommandService implements SessionCommandServicePort {
 
         var joinPolicy = JoinSessionPolicyFactory.createJoinPolicy(joinSessionCommand.inviteCode());
         session.join(joinSessionCommand.userId(), joinPolicy);
+
+        sessionRepositoryPort.save(session);
+        // TODO: events
+    }
+
+    @Override
+    @Transactional
+    public void handleUserJoinRequest(HandleUserJoinSessionDecisionCommand cmd) {
+        var session = sessionRepositoryPort
+                .findById(cmd.sessionId())
+                .orElseThrow(SessionNotFoundException::new);
+
+        if (!session.canUserApproveJoinRequests(cmd.ownerId())) {
+            throw new SessionForbiddenException("user can't approve join requests");
+        }
+
+        if (cmd.shouldApproveRequest()) {
+            session.approveJoinRequest(cmd.userId());
+        } else {
+            session.rejectJoinRequest(cmd.userId());
+        }
 
         sessionRepositoryPort.save(session);
         // TODO: events
