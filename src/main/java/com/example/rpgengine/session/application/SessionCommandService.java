@@ -1,9 +1,12 @@
 package com.example.rpgengine.session.application;
 
+import com.example.rpgengine.session.domain.JoinSessionPolicyFactory;
 import com.example.rpgengine.session.domain.Session;
 import com.example.rpgengine.session.domain.exception.SessionInvalidUserException;
+import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
+import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
 import com.example.rpgengine.session.domain.port.out.SessionRepositoryPort;
 import com.example.rpgengine.session.domain.port.out.UserPort;
 import com.example.rpgengine.session.domain.valueobject.SessionId;
@@ -42,6 +45,21 @@ class SessionCommandService implements SessionCommandServicePort {
         );
 
         var storedSession = sessionRepositoryPort.save(session);
+        // TODO: events
         return storedSession.getId();
+    }
+
+    @Override
+    @Transactional
+    public void join(JoinSessionCommand joinSessionCommand) {
+        var session = sessionRepositoryPort
+                .findById(joinSessionCommand.sessionId())
+                .orElseThrow(SessionNotFoundException::new);
+
+        var joinPolicy = JoinSessionPolicyFactory.createJoinPolicy(joinSessionCommand.inviteCode());
+        session.join(joinSessionCommand.userId(), joinPolicy);
+
+        sessionRepositoryPort.save(session);
+        // TODO: events
     }
 }

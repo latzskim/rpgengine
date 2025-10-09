@@ -151,7 +151,7 @@ public class Session {
         invitePolicy.join(this, userId);
     }
 
-    public boolean validateInviteCode(String inviteCode) {
+    protected boolean validateInviteCode(String inviteCode) {
         return inviteCode.equals(this.inviteCode);
     }
 
