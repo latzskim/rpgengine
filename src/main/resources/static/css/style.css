@@ -1,0 +1,258 @@
+/* -------------------------------------------------
+   1. Global variables & resets – Medieval RPG Theme
+   ------------------------------------------------- */
+html {
+    font-family: 'Crimson Text', Georgia, serif;   /* GLOBAL FONT */
+    font-size: 16px;
+}
+
+:root {
+    /* Earthy, parchment base */
+    --clr-bg:          #FDF6E3;        /* Warm parchment/off-white */
+    --clr-surface:     #FFF8E7;        /* Slightly aged paper */
+
+    /* Dark wood & stone accents */
+    --clr-primary:     #3E2723;        /* Deep walnut brown (headers, text) */
+    --clr-secondary:   #5D4037;        /* Burnt umber (borders, shadows) */
+
+    /* Medieval metals & gems */
+    --clr-accent:      #B76E79;        /* Burnished copper (buttons, links) */
+    --clr-success:     #2E7D32;        /* Deep forest green (open sessions) */
+    --clr-warning:     #EF6C00;        /* Amber glow (full sessions) */
+    --clr-danger:      #D32F2F;        /* Rust-red blood (closed) */
+
+    /* Text & muted tones */
+    --clr-text:        #2C1810;        /* Rich ink black-brown */
+    --clr-muted:       #6D4C41;        /* Faded sepia */
+
+    /* Layout helpers */
+    --radius:          .25rem;         /* Subtle, worn edges */
+    --shadow-sm:       0 1px 3px rgba(62, 39, 35, .1);  /* Soft paper shadow */
+    --shadow-md:       0 4px 12px rgba(62, 39, 35, .15); /* Deeper, like a tome */
+    --transition:      all .3s ease;   /* Gentle, like turning pages */
+}
+
+/* Dark mode (candlelit tavern – toggle with .dark on <html>) */
+html.dark {
+    --clr-bg:          #1A0F0B;        /* Pitch-black night */
+    --clr-surface:     #2C1810;        /* Flickering torchlight */
+    --clr-text:        #E8D5A3;        /* Glowing ember text */
+    --clr-muted:       #A1887F;        /* Smoky haze */
+}
+
+/* -------------------------------------------------
+   2. Base typography & layout
+   ------------------------------------------------- */
+*,
+*::before,
+*::after { box-sizing: border-box; }
+
+html {
+    font-family: 'Crimson Text', 'Georgia', serif;  /* Serif for medieval script feel */
+    font-size: 16px;
+}
+body {
+    margin: 0;
+    background: var(--clr-bg);
+    color: var(--clr-text);
+    line-height: 1.6;
+}
+
+.container {
+    width: min(100%, 1200px);
+    margin-inline: auto;
+    padding-inline: 1rem;
+}
+
+/* Subtle parchment texture overlay (optional, for immersion) */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background:
+        radial-gradient(circle at 20% 80%, rgba(255,248,231,.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(253,246,227,.03) 0%, transparent 50%);
+    pointer-events: none;
+    z-index: -1;
+}
+
+/* -------------------------------------------------
+   3. Header – Wrought-iron banner
+   ------------------------------------------------- */
+.site-header {
+    background: linear-gradient(to bottom, var(--clr-secondary), var(--clr-primary));  /* Wood grain fade */
+    color: #F5F5DC;  /* Ivory text */
+    padding: 1rem 0;
+    box-shadow: var(--shadow-md);
+    border-bottom: 3px solid var(--clr-accent);  /* Copper trim */
+}
+.header__inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.logo {
+    font-weight: 700;
+    font-size: 1.75rem;
+    color: #F5F5DC;
+    text-decoration: none;
+    text-shadow: 1px 1px 2px rgba(0,0,0,.3);  /* Engraved look */
+}
+.nav a { color: #F5F5DC; text-decoration: none; }
+
+/* -------------------------------------------------
+   4. Buttons – Forged metal seals
+   ------------------------------------------------- */
+.btn {
+    display: inline-block;
+    padding: .75rem 1.5rem;
+    border-radius: var(--radius);
+    font-weight: 600;
+    text-align: center;
+    text-decoration: none;
+    transition: var(--transition);
+    cursor: pointer;
+    border: 2px solid transparent;  /* For hover glow */
+    background: var(--clr-accent);
+    color: #FFF8E7;  /* Parchment text on metal */
+    box-shadow: var(--shadow-sm);
+}
+.btn--primary:hover {
+    background: #A0522D;  /* Darker copper */
+    transform: translateY(-1px);  /* Subtle lift */
+    box-shadow: var(--shadow-md);
+}
+
+/* -------------------------------------------------
+   5. Hero section – Illuminated manuscript
+   ------------------------------------------------- */
+.hero {
+    text-align: center;
+    padding: 3rem 1rem;
+    background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #CD853F 100%);  /* Autumn forest path */
+    color: #F5F5DC;
+    margin-bottom: 2rem;
+    border-bottom: 4px solid var(--clr-secondary);  /* Leather binding */
+    text-shadow: 1px 1px 2px rgba(0,0,0,.5);  /* Dramatic ink */
+}
+.hero h1 {
+    margin: 0 0 .5rem;
+    font-size: 2.75rem;
+    font-family: 'Uncial Antiqua', serif;  /* Optional: Load a fantasy font via Google Fonts */
+}
+.hero p {
+    margin: 0;
+    font-size: 1.25rem;
+}
+
+/* -------------------------------------------------
+   6. Sessions table – Scrolled parchment ledger
+   ------------------------------------------------- */
+.sessions__title {
+    margin-bottom: 1rem;
+    color: var(--clr-primary);
+    border-bottom: 2px solid var(--clr-accent);  /* Wax seal line */
+    padding-bottom: .5rem;
+}
+.sessions__table {
+    width: 100%;
+    border-collapse: collapse;
+    background: var(--clr-surface);
+    box-shadow: var(--shadow-md);
+    border-radius: var(--radius);
+    overflow: hidden;
+    border: 1px solid var(--clr-secondary);  /* Leather edging */
+}
+.sessions__table th,
+.sessions__table td {
+    padding: .75rem 1rem;
+    text-align: left;
+    border-bottom: 1px solid var(--clr-muted);  /* Faint ink lines */
+}
+.sessions__table th {
+    background: linear-gradient(to right, var(--clr-primary), var(--clr-secondary));  /* Wood panel */
+    color: #F5F5DC;
+    font-weight: 600;
+    text-shadow: 1px 1px 1px rgba(0,0,0,.3);
+}
+.sessions__table tr:hover {
+    background: rgba(183, 110, 121, .1);  /* Subtle copper wash */
+}
+
+.participants {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+}
+.participants li {
+    margin-bottom: .25rem;
+    font-size: .875rem;
+}
+
+/* Badges – Wax seals or gem inlays */
+.badge {
+    display: inline-block;
+    padding: .375em .75em;
+    font-size: .75rem;
+    font-weight: 600;
+    border-radius: 999px;
+    text-transform: uppercase;
+    box-shadow: inset 0 1px 0 rgba(255,255,255,.2);  /* Inner glow */
+}
+.badge--success {
+    background: var(--clr-success);
+    color: #F5F5DC;
+}
+.badge--warning {
+    background: var(--clr-warning);
+    color: #2C1810;
+}
+.badge--danger {
+    background: var(--clr-danger);
+    color: #F5F5DC;
+}
+
+/* -------------------------------------------------
+   7. Footer – Stone hearth
+   ------------------------------------------------- */
+.site-footer {
+    background: linear-gradient(to top, var(--clr-primary), var(--clr-secondary));  /* Hearth embers */
+    color: #E8D5A3;
+    text-align: center;
+    padding: 1.5rem 0;
+    margin-top: 0;
+    border-top: 3px solid var(--clr-accent);  /* Copper engraving */
+}
+.site-footer a {
+    color: #DEB887;  /* Burlywood link */
+    text-decoration: underline;
+}
+.site-footer a:hover { color: #F5F5DC; }
+
+/* -------------------------------------------------
+   8. Sticky Footer – Flexbox solution (unchanged)
+   ------------------------------------------------- */
+html, body { height: 100%; margin: 0; }
+
+.page-wrapper {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+.page-wrapper__inner { flex: 1 0 auto; }
+.page-push { flex-grow: 1; }
+.page-main { flex-shrink: 0; }
+
+.site-footer {
+    flex-shrink: 0;
+}
+
+/* -------------------------------------------------
+   9. Responsive tweaks – Mobile scroll like a map
+   ------------------------------------------------- */
+@media (max-width: 640px) {
+    .sessions__table { font-size: .875rem; }
+    .sessions__table th,
+    .sessions__table td { padding: .5rem .75rem; }
+    .hero h1 { font-size: 2rem; }
+}

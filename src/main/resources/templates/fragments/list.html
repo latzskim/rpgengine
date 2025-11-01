@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="sessionsList">
+    <section class="sessions">
+        <div class="container">
+            <h2 class="sessions__title">Available Sessions</h2>
+
+            <table class="sessions__table">
+                <thead>
+                <tr>
+                    <th>Description</th>
+                    <th>Start Date</th>
+                    <th>Difficulty</th>
+                    <th>Visibility</th>
+                    <th>Min / Max</th>
+                    <th>Status</th>
+                    <th>Participants</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr th:each="ses : ${sessions}">
+                    <td th:text="${ses.description}"></td>
+                    <td th:text="${#temporals.format(ses.startDate, 'dd MMM yyyy HH:mm')}"></td>
+                    <td th:text="${ses.difficulty}"></td>
+                    <td th:text="${ses.visibility}"></td>
+                    <td th:text="${ses.minPlayers} + ' / ' + ${ses.maxPlayers}"></td>
+                    <td>
+                            <span th:classappend="${ses.status == 'OPEN'} ? 'badge badge--success' :
+                                                    ${ses.status == 'FULL'} ? 'badge badge--warning' :
+                                                    'badge badge--danger'"
+                                  th:text="${ses.status}"></span>
+                    </td>
+                    <td>
+                        <ul class="participants">
+                            <li th:each="p : ${ses.participants}"
+                                th:text="${p.userId} + ' (' + ${p.role} + ')'"></li>
+                        </ul>
+                    </td>
+                </tr>
+                </tbody>
+            </table>
+
+            <p class="sessions__create">
+                <a th:href="@{/sessions/create}" class="btn btn--primary">Create New Session</a>
+            </p>
+        </div>
+    </section>
+</th:block>
+</html>

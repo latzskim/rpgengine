@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+
+<th:block th:fragment="header">
+    <header class="site-header">
+        <div class="container header__inner">
+            <a href="/" class="logo">RPG Engine</a>
+            <nav class="nav">
+                <a th:href="@{/sessions/create}" class="btn btn--primary">+ New Session</a>
+            </nav>
+        </div>
+    </header>
+</th:block>
+</html>

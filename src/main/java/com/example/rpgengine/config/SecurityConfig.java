@@ -52,6 +52,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers( "/").permitAll()
                         .requestMatchers( "/session").permitAll()
+                        .requestMatchers( "/css/**").permitAll()
                         .requestMatchers("/login", "/register", "/activate").permitAll()
                         .anyRequest().authenticated()
                 )

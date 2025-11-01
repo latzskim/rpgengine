@@ -1,9 +1,31 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en"
+      xmlns:th="http://www.thymeleaf.org">
+
 <head>
-    <title>Create RPG Session</title>
-    <link rel="stylesheet" href="/css/styles.css"/>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1"/>
+    <title>RPG Sessions</title>
+    <link rel="stylesheet" th:href="@{/css/style.css}"/>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text&family=Uncial+Antiqua&display=swap" rel="stylesheet">
 </head>
-<body>
-<h1>RPG Session 1</h1>
+
+<body class="page-wrapper">
+<div class="page-wrapper__inner">
+    <header th:replace="~{fragments/header :: header}"></header>
+
+    <main>
+        <section class="hero">
+            <h1>Welcome to Role-Play Games World</h1>
+            <p>Schedule, join and run epic tabletop adventures.</p>
+        </section>
+
+        <section th:replace="~{fragments/list :: sessionsList}"></section>
+    </main>
+
+    <div class="page-push"></div>
+</div>
+
+<footer th:replace="~{fragments/footer :: footer}" class="site-footer"></footer>
 </body>
+</html>
