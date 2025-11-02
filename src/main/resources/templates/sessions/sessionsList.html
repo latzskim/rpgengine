@@ -25,12 +25,7 @@
                     <td th:text="${ses.difficulty}"></td>
                     <td th:text="${ses.visibility}"></td>
                     <td th:text="${ses.minPlayers} + ' / ' + ${ses.maxPlayers}"></td>
-                    <td>
-                            <span th:classappend="${ses.status == 'OPEN'} ? 'badge badge--success' :
-                                                    ${ses.status == 'FULL'} ? 'badge badge--warning' :
-                                                    'badge badge--danger'"
-                                  th:text="${ses.status}"></span>
-                    </td>
+                    <td th:text="${ses.status}"></td>
                     <td>
                         <ul class="participants">
                             <li th:each="p : ${ses.participants}"

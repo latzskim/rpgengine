@@ -1,26 +1,74 @@
 package com.example.rpgengine.session.adapter.web;
 
-import com.example.rpgengine.session.domain.port.out.SessionRepositoryPort;
+import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
+import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
+import com.example.rpgengine.session.domain.port.out.UserPort;
+import com.example.rpgengine.session.domain.valueobject.SessionUser;
+import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+
+import java.security.Principal;
+import java.util.Optional;
 
 @Controller
-@RequestMapping("/session")
+@RequestMapping("/sessions")
 class SessionController {
+    private final SessionCommandServicePort sessionCommandServicePort;
+    private final UserPort userPort;
 
-    private final SessionRepositoryPort sessionRepositoryPort;
-
-    SessionController(SessionRepositoryPort sessionRepositoryPort) {
-        this.sessionRepositoryPort = sessionRepositoryPort;
+    SessionController(SessionCommandServicePort sessionCommandServicePort, UserPort userPort) {
+        this.sessionCommandServicePort = sessionCommandServicePort;
+        this.userPort = userPort;
     }
 
-    @GetMapping
-    public String listSession(Model model) {
-        var sessions = sessionRepositoryPort.findAll();
-        model.addAttribute("sessions", sessions);
+    @GetMapping("/create")
+    String createForm(Principal principal, Model model) {
+        return getSessionUser(principal).map(sessionUser -> {
+            model.addAttribute("createSessionCommand", new CreateSessionCommand(
+                    sessionUser.id(),
+                    "",
+                    null,
+                    null,
+                    null,
+                    null,
+                    null,
+                    null
+            ));
+            return "sessions/createForm";
+        }).orElse("access-denied");
+    }
 
-        return "session/list";
+    @PostMapping
+    String createSession(
+            @ModelAttribute CreateSessionCommand command,
+            Principal principal
+    ) {
+        return getSessionUser(principal).map(sessionUser -> {
+            var sessionId = sessionCommandServicePort.createSession(new CreateSessionCommand(
+                    sessionUser.id(),
+                    command.description(),
+                    command.startDate(),
+                    command.durationInMinutes(),
+                    command.difficultyLevel(),
+                    command.visibility(),
+                    command.minPlayers(),
+                    command.maxPlayers()
+            ));
+
+            return "redirect:/sessions/" + sessionId.getId().toString();
+        }).orElse("access-denied");
+    }
+
+    @GetMapping("/{id}")
+    String sessionDetail(@PathVariable String id, Model model) {
+        return "sessions/sessionDetail";
+    }
+
+
+    private Optional<SessionUser> getSessionUser(Principal principal) {
+        return userPort.findByUsername(principal.getName());
     }
 }

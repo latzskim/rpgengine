@@ -7,4 +7,6 @@ import java.util.Optional;
 
 public interface UserPort {
     Optional<SessionUser> getById(UserId userId);
+
+    Optional<SessionUser> findByUsername(String username);
 }

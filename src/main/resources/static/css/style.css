@@ -256,3 +256,19 @@ html, body { height: 100%; margin: 0; }
     .sessions__table td { padding: .5rem .75rem; }
     .hero h1 { font-size: 2rem; }
 }
+
+
+.form-group { margin-bottom: 1.5rem; }
+.form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+.form-row .form-group { flex: 1; min-width: 200px; }
+.form-label { display: block; margin-bottom: .5rem; font-weight: 600; color: var(--clr-primary); }
+.form-control {
+    width: 100%; padding: .75rem; border: 1px solid var(--clr-secondary);
+    border-radius: var(--radius); background: #FFF; font: inherit;
+    transition: var(--transition);
+}
+.form-control:focus { outline: none; border-color: var(--clr-accent); box-shadow: 0 0 0 3px rgba(183,110,121,.2); }
+.form-error { color: var(--clr-danger); font-size: .875rem; margin-top: .25rem; }
+.radio-group { display: flex; flex-direction: column; gap: .75rem; }
+.radio-label { display: flex; align-items: center; cursor: pointer; }
+.radio-label input { margin-right: .5rem; }
