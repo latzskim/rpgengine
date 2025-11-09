@@ -2,7 +2,7 @@ package com.example.rpgengine.session.domain;
 
 import com.example.rpgengine.session.domain.event.*;
 import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
-import com.example.rpgengine.session.domain.exception.SessionStateException;
+import com.example.rpgengine.session.domain.exception.SessionStatusException;
 import com.example.rpgengine.session.domain.exception.SessionUserNotFound;
 import com.example.rpgengine.session.domain.exception.SessionValidationException;
 import com.example.rpgengine.session.domain.valueobject.*;
@@ -195,16 +195,16 @@ public class Session {
 
     public void scheduleSession() {
         if (this.status != SessionStatus.DRAFT) {
-            throw new SessionStateException(format("cannot schedule session in state: %s", this.status));
+            throw new SessionStatusException(format("cannot schedule session in status: %s", this.status));
         }
 
         if (this.startDate == null) {
-            throw new SessionStateException("session must have start date");
+            throw new SessionStatusException("session must have start date");
 
         }
 
         this.status = SessionStatus.SCHEDULED;
-        this.domainEvents.add(new SessionStateEvent.SessionScheduled(this.id));
+        this.domainEvents.add(new SessionStatusEvent.SessionScheduled(this.id));
     }
 
     public void approveJoinRequest(UserId userId) {
@@ -232,5 +232,12 @@ public class Session {
     public boolean canUserApproveJoinRequests(UserId userId) {
         // TODO: maybe in the future, both owner and GM can approve
         return this.ownerId.equals(userId);
+    }
+
+    public void delete() {
+        if (this.status != SessionStatus.DRAFT) {
+            throw new SessionStatusException(format("cannot delete session in status: %s", this.status));
+        }
+        this.domainEvents.add(new SessionStatusEvent.SessionHardDeleted(this.id));
     }
 }
