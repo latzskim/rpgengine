@@ -1,5 +1,6 @@
 package com.example.rpgengine.session.adapter.web;
 
+import com.example.rpgengine.session.domain.exception.SessionValidationException;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
 import com.example.rpgengine.session.domain.port.out.UserPort;
@@ -7,6 +8,8 @@ import com.example.rpgengine.session.domain.valueobject.SessionUser;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
@@ -44,21 +47,29 @@ class SessionController {
     @PostMapping
     String createSession(
             @ModelAttribute CreateSessionCommand command,
-            Principal principal
+            Principal principal,
+            Model model
     ) {
         return getSessionUser(principal).map(sessionUser -> {
-            var sessionId = sessionCommandServicePort.createSession(new CreateSessionCommand(
-                    sessionUser.id(),
-                    command.description(),
-                    command.startDate(),
-                    command.durationInMinutes(),
-                    command.difficultyLevel(),
-                    command.visibility(),
-                    command.minPlayers(),
-                    command.maxPlayers()
-            ));
+            try {
+                var sessionId = sessionCommandServicePort.createSession(new CreateSessionCommand(
+                        sessionUser.id(),
+                        command.description(),
+                        command.startDate(),
+                        command.durationInMinutes(),
+                        command.difficultyLevel(),
+                        command.visibility(),
+                        command.minPlayers(),
+                        command.maxPlayers()
+                ));
 
-            return "redirect:/sessions/" + sessionId.getId().toString();
+                return "redirect:/sessions/" + sessionId.getId().toString();
+            } catch (SessionValidationException e) {
+                model.addAttribute("errorMessage", e.getMessage());
+            }
+
+            // TODO: catch exception + custom "something went wrong" page?
+            return "sessions/createForm";
         }).orElse("access-denied");
     }
 

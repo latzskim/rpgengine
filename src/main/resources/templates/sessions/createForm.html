@@ -8,7 +8,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1"/>
     <title>Create RPG Session – RPG Engine</title>
     <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text&family=Uncial+Antiqua&display=swap"
+          rel="stylesheet">
 </head>
 
 <body class="page-wrapper">
@@ -21,42 +22,57 @@
             <p>Schedule an epic adventure for your fellowship.</p>
         </section>
 
-        <div class="card" style="background: var(--clr-surface); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow-md);">
-            <form th:action="@{/sessions}" th:object="${createSessionCommand}" method="post" class="form-create-session">
+        <div class="card"
+             style="background: var(--clr-surface); padding: 2rem; border-radius: var(--radius); box-shadow: var(--shadow-md);">
+            <form th:action="@{/sessions}" th:object="${createSessionCommand}" method="post"
+                  class="form-create-session">
                 <!-- Session Title / Description -->
                 <div class="form-group">
-                    <label for="description" class="form-label">Quest Title & Description <span class="text-danger">*</span></label>
-                    <textarea id="description" th:field="*{description}" rows="4" class="form-control" placeholder="A dark cult awakens beneath the ruins of Eldergrove..." required></textarea>
+                    <label for="description" class="form-label">Quest Title & Description <span
+                            class="text-danger">*</span></label>
+                    <textarea id="description" th:field="*{description}" rows="4" class="form-control"
+                              placeholder="A dark cult awakens beneath the ruins of Eldergrove..." required></textarea>
                     <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="form-error"></p>
                 </div>
 
                 <!-- Date & Time -->
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="startDate" class="form-label">Start Date & Time <span class="text-danger">*</span></label>
-                        <input type="datetime-local" id="startDate" th:field="*{startDate}" class="form-control" required/>
-                        <p th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="form-error"></p>
+                        <label for="startDate" class="form-label">Start Date & Time <span
+                                class="text-danger">*</span></label>
+                        <input type="datetime-local" id="startDate" th:field="*{startDate}" class="form-control"
+                               required/>
+
                     </div>
 
                     <div class="form-group">
-                        <label for="durationInMinutes" class="form-label">Estimated Duration (minutes) <span class="text-danger">*</span></label>
-                        <input type="number" id="durationInMinutes" th:field="*{durationInMinutes}" min="30" max="1440" step="15" class="form-control" placeholder="180" required/>
-                        <p th:if="${#fields.hasErrors('durationInMinutes')}" th:errors="*{durationInMinutes}" class="form-error"></p>
+                        <label for="durationInMinutes" class="form-label">Estimated Duration (minutes) <span
+                                class="text-danger">*</span></label>
+                        <input type="number" id="durationInMinutes" th:field="*{durationInMinutes}" min="30" max="1440"
+                               step="15" class="form-control" placeholder="180" required/>
+                        <p th:if="${#fields.hasErrors('durationInMinutes')}" th:errors="*{durationInMinutes}"
+                           class="form-error"></p>
                     </div>
                 </div>
 
                 <!-- Player Limits -->
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="minPlayers" class="form-label">Minimum Players</label>
-                        <input type="number" id="minPlayers" th:field="*{minPlayers}" min="1" max="10" class="form-control" value="1"/>
-                        <p th:if="${#fields.hasErrors('minPlayers')}" th:errors="*{minPlayers}" class="form-error"></p>
+                        <label for="minPlayers" class="form-label">Minimum Players <span
+                                class="text-danger">*</span></label>
+                        <input type="number" id="minPlayers" th:field="*{minPlayers}" min="1" max="10"
+                               class="form-control" value="1"/>
+                        <p th:if="${errorMessage != null && (errorMessage.contains('minPlayers') || errorMessage.contains('invalid players range'))}"
+                           class="form-error"><span th:text="${errorMessage}"/></p>
                     </div>
 
                     <div class="form-group">
-                        <label for="maxPlayers" class="form-label">Maximum Players <span class="text-danger">*</span></label>
-                        <input type="number" id="maxPlayers" th:field="*{maxPlayers}" min="1" max="20" class="form-control" value="6" required/>
-                        <p th:if="${#fields.hasErrors('maxPlayers')}" th:errors="*{maxPlayers}" class="form-error"></p>
+                        <label for="maxPlayers" class="form-label">Maximum Players <span
+                                class="text-danger">*</span></label>
+                        <input type="number" id="maxPlayers" th:field="*{maxPlayers}" min="1" max="10"
+                               class="form-control" value="6" required/>
+                        <p th:if="${errorMessage != null && (errorMessage.contains('minPlayers') || errorMessage.contains('invalid players range'))}"
+                           class="form-error"><span th:text="${errorMessage}"/></p>
                     </div>
                 </div>
 
@@ -65,11 +81,18 @@
                     <label for="difficultyLevel" class="form-label">Difficulty Level <span class="text-danger">*</span></label>
                     <select id="difficultyLevel" th:field="*{difficultyLevel}" class="form-control" required>
                         <option value="" disabled selected>Select difficulty...</option>
-                        <option th:value="${T(com.example.rpgengine.session.domain.valueobject.DifficultyLevel).EASY}" th:text="#{difficulty.beginner}">Beginner</option>
-                        <option th:value="${T(com.example.rpgengine.session.domain.valueobject.DifficultyLevel).INTERMEDIATE}" th:text="#{difficulty.intermediate}">Intermediate</option>
-                        <option th:value="${T(com.example.rpgengine.session.domain.valueobject.DifficultyLevel).HARD}" th:text="#{difficulty.expert}">Expert</option>
+                        <option th:value="${T(com.example.rpgengine.session.domain.valueobject.DifficultyLevel).EASY}"
+                                th:text="#{difficulty.beginner}">Beginner
+                        </option>
+                        <option th:value="${T(com.example.rpgengine.session.domain.valueobject.DifficultyLevel).INTERMEDIATE}"
+                                th:text="#{difficulty.intermediate}">Intermediate
+                        </option>
+                        <option th:value="${T(com.example.rpgengine.session.domain.valueobject.DifficultyLevel).HARD}"
+                                th:text="#{difficulty.expert}">Expert
+                        </option>
                     </select>
-                    <p th:if="${#fields.hasErrors('difficultyLevel')}" th:errors="*{difficultyLevel}" class="form-error"></p>
+                    <p th:if="${#fields.hasErrors('difficultyLevel')}" th:errors="*{difficultyLevel}"
+                       class="form-error"></p>
                 </div>
 
                 <!-- Visibility -->
@@ -77,11 +100,15 @@
                     <label class="form-label">Session Visibility <span class="text-danger">*</span></label>
                     <div class="radio-group">
                         <label class="radio-label">
-                            <input type="radio" th:field="*{visibility}" th:value="${T(com.example.rpgengine.session.domain.valueobject.Visibility).PUBLIC}" required/>
+                            <input type="radio" th:field="*{visibility}"
+                                   th:value="${T(com.example.rpgengine.session.domain.valueobject.Visibility).PUBLIC}"
+                                   required/>
                             <span class="radio-text">Public – Anyone can request to join</span>
                         </label>
                         <label class="radio-label">
-                            <input type="radio" th:field="*{visibility}" th:value="${T(com.example.rpgengine.session.domain.valueobject.Visibility).PRIVATE}" required/>
+                            <input type="radio" th:field="*{visibility}"
+                                   th:value="${T(com.example.rpgengine.session.domain.valueobject.Visibility).PRIVATE}"
+                                   required/>
                             <span class="radio-text">Private – Invite only via code</span>
                         </label>
                     </div>
@@ -89,10 +116,11 @@
                 </div>
 
                 <!-- Submit Buttons -->
-                <div class="form-actions" style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
+                <div class="form-actions"
+                     style="margin-top: 2rem; display: flex; gap: 1rem; justify-content: flex-end;">
                     <a th:href="@{/}" class="btn btn--secondary" style="background: var(--clr-muted); color: #FFF8E7;">Cancel</a>
-                    <button type="submit" name="action" value="save_draft" class="btn btn--primary">Save as Draft</button>
-                    <button type="submit" name="action" value="publish" class="btn btn--success" style="background: var(--clr-success);">Publish Session</button>
+                    <button type="submit" name="action" value="save_draft" class="btn btn--primary">Save as Draft
+                    </button>
                 </div>
             </form>
         </div>
