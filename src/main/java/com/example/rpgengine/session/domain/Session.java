@@ -4,6 +4,7 @@ import com.example.rpgengine.session.domain.event.*;
 import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
 import com.example.rpgengine.session.domain.exception.SessionScheduleException;
 import com.example.rpgengine.session.domain.exception.SessionUserNotFound;
+import com.example.rpgengine.session.domain.exception.SessionValidationException;
 import com.example.rpgengine.session.domain.valueobject.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -18,6 +19,8 @@ import java.util.*;
 @AllArgsConstructor
 @Getter
 public class Session {
+    public static final int MIN_PLAYERS = 1;
+    public static final int MAX_PLAYERS = 10;
     @EmbeddedId
     private SessionId id;
 
@@ -91,6 +94,9 @@ public class Session {
             Integer minPlayers,
             Integer maxPlayers
     ) {
+        validatePlayersRange(minPlayers, maxPlayers);
+
+
         this.id = new SessionId(UUID.randomUUID());
         this.ownerId = ownerId;
         this.description = description;
@@ -104,6 +110,16 @@ public class Session {
 
         var gmParticipant = new SessionParticipant(ownerId, ParticipantRole.GAMEMASTER);
         this.participants.add(gmParticipant);
+    }
+
+    private static void validatePlayersRange(Integer minPlayers, Integer maxPlayers) {
+        if (minPlayers == null || minPlayers < MIN_PLAYERS) {
+            throw new SessionValidationException("minPlayers can't be less than 1");
+        }
+
+        if (maxPlayers == null || maxPlayers > MAX_PLAYERS) {
+            throw new SessionValidationException("maxPlayers can't be greater than 10");
+        }
     }
 
     protected Session() {

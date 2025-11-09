@@ -1,10 +1,7 @@
 package com.example.rpgengine.session.domain;
 
 import com.example.rpgengine.session.domain.event.*;
-import com.example.rpgengine.session.domain.exception.InvalidInvitationCodeException;
-import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
-import com.example.rpgengine.session.domain.exception.SessionPrivateException;
-import com.example.rpgengine.session.domain.exception.SessionScheduleException;
+import com.example.rpgengine.session.domain.exception.*;
 import com.example.rpgengine.session.domain.valueobject.*;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,6 +23,8 @@ import static org.junit.jupiter.api.Assertions.fail;
 class SessionTest {
     final static int validMinPlayers = 1;
     final static int validMaxPlayers = 10;
+    final static int invalidMinPlayers = 0;
+    final static int invalidMaxPlayers = 11;
 
     @Test
     public void shouldOwnerBeAssignedAsADefaultGameMaster() {
@@ -162,6 +161,31 @@ class SessionTest {
         assertThrows(InvalidInvitationCodeException.class, () -> {
             session.join(userId, JoinSessionPolicyFactory.createJoinPolicy("invalidCode"));
         });
+    }
+
+    @Test
+    public void shouldThrowSessionValidationExceptionWhenInvalidMinAndMaxPlayers() {
+        assertThrows(SessionValidationException.class, () -> new Session(
+                UserId.fromUUID(UUID.randomUUID()),
+                "Lotr Session",
+                LocalDateTime.now().plusDays(1),
+                Duration.ofHours(5),
+                DifficultyLevel.EASY,
+                Visibility.PUBLIC,
+                invalidMinPlayers, // invalid MIN
+                validMaxPlayers
+        ));
+
+        assertThrows(SessionValidationException.class, () -> new Session(
+                UserId.fromUUID(UUID.randomUUID()),
+                "Lotr Session",
+                LocalDateTime.now().plusDays(1),
+                Duration.ofHours(5),
+                DifficultyLevel.EASY,
+                Visibility.PUBLIC,
+                validMinPlayers,
+                invalidMaxPlayers // invalid MAX
+        ));
     }
 
 
