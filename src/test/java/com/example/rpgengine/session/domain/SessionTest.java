@@ -21,7 +21,7 @@ import static org.junit.jupiter.api.Assertions.fail;
 
 
 class SessionTest {
-    final static int validMinPlayers = 1;
+    final static int validMinPlayers = 2;
     final static int validMaxPlayers = 10;
     final static int invalidMinPlayers = 0;
     final static int invalidMaxPlayers = 11;
@@ -185,6 +185,18 @@ class SessionTest {
                 Visibility.PUBLIC,
                 validMinPlayers,
                 invalidMaxPlayers // invalid MAX
+        ));
+
+        // MIN > MAX
+        assertThrows(SessionValidationException.class, () -> new Session(
+                UserId.fromUUID(UUID.randomUUID()),
+                "Lotr Session",
+                LocalDateTime.now().plusDays(1),
+                Duration.ofHours(5),
+                DifficultyLevel.EASY,
+                Visibility.PUBLIC,
+                9,
+                8
         ));
     }
 

@@ -14,13 +14,15 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.*;
 
+import static java.lang.String.format;
+
 @Entity
 @Table(name = "sessions")
 @AllArgsConstructor
 @Getter
 public class Session {
-    public static final int MIN_PLAYERS = 1;
-    public static final int MAX_PLAYERS = 10;
+    public static final int MIN_PLAYERS_EXCLUDING_GM = 2;
+    public static final int MAX_PLAYERS_EXCLUDING_GM = 10;
     @EmbeddedId
     private SessionId id;
 
@@ -113,12 +115,16 @@ public class Session {
     }
 
     private static void validatePlayersRange(Integer minPlayers, Integer maxPlayers) {
-        if (minPlayers == null || minPlayers < MIN_PLAYERS) {
-            throw new SessionValidationException("minPlayers can't be less than 1");
+        if (minPlayers == null || minPlayers < MIN_PLAYERS_EXCLUDING_GM) {
+            throw new SessionValidationException(format("minPlayers can't be less than %d", MIN_PLAYERS_EXCLUDING_GM));
         }
 
-        if (maxPlayers == null || maxPlayers > MAX_PLAYERS) {
-            throw new SessionValidationException("maxPlayers can't be greater than 10");
+        if (maxPlayers == null || maxPlayers > MAX_PLAYERS_EXCLUDING_GM) {
+            throw new SessionValidationException(format("maxPlayers can't be greater than %d", MAX_PLAYERS_EXCLUDING_GM));
+        }
+
+        if (minPlayers > maxPlayers) {
+            throw new SessionValidationException("invalid players range");
         }
     }
 
