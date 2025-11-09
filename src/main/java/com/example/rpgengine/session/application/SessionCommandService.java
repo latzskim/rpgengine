@@ -7,6 +7,7 @@ import com.example.rpgengine.session.domain.exception.SessionInvalidUserExceptio
 import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
+import com.example.rpgengine.session.domain.port.in.command.DeleteSessionCommand;
 import com.example.rpgengine.session.domain.port.in.command.HandleUserJoinSessionDecisionCommand;
 import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
 import com.example.rpgengine.session.domain.port.out.SessionRepositoryPort;
@@ -84,6 +85,26 @@ class SessionCommandService implements SessionCommandServicePort {
         }
 
         sessionRepositoryPort.save(session);
+        // TODO: events
+    }
+
+    @Override
+    public void deleteSession(DeleteSessionCommand deleteSessionCommand) {
+        var sessionUser = userPort
+                .getById(deleteSessionCommand.userId())
+                .orElseThrow(SessionInvalidUserException::new);
+
+        var session = sessionRepositoryPort
+                .findById(deleteSessionCommand.id())
+                .orElseThrow(SessionNotFoundException::new);
+
+        if (!session.isGameMaster(sessionUser.id()) && !session.isOwner(sessionUser.id())) {
+            throw new SessionForbiddenException("user can't delete session");
+        }
+
+        session.delete();
+        sessionRepositoryPort.delete(session);
+
         // TODO: events
     }
 }

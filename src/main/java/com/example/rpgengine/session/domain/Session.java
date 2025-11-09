@@ -240,4 +240,15 @@ public class Session {
         }
         this.domainEvents.add(new SessionStatusEvent.SessionHardDeleted(this.id));
     }
+
+    public boolean isGameMaster(UserId userId) {
+        return participants.stream()
+                .filter(p -> p.getUserId().equals(userId))
+                .anyMatch(p -> p.getRole().equals(ParticipantRole.GAMEMASTER));
+    }
+
+    public boolean isOwner(UserId userId) {
+        return this.ownerId.equals(userId);
+    }
+
 }

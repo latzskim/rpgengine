@@ -3,6 +3,7 @@ package com.example.rpgengine.session.application;
 import com.example.rpgengine.session.domain.SessionParticipant;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
+import com.example.rpgengine.session.domain.port.in.command.DeleteSessionCommand;
 import com.example.rpgengine.session.domain.port.in.command.HandleUserJoinSessionDecisionCommand;
 import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
 import com.example.rpgengine.session.domain.port.out.SessionRepositoryPort;
@@ -28,10 +29,8 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Transactional
 @Rollback(false)
 class SessionServiceIntegrationTest {
-
     @Autowired
     private SessionRepositoryPort sessionRepositoryPort;
-
 
     @MockitoBean
     private UserPort userPort;
@@ -53,6 +52,7 @@ class SessionServiceIntegrationTest {
 
     @Test
     @Order(0)
+        // TODO: is there a way to prepare such scenarios that will not relay on ORDER?
     void shouldCreateASessionWithGameMaster() {
         // given:
         var userId = UserId.fromUUID(UUID.randomUUID());
@@ -61,7 +61,6 @@ class SessionServiceIntegrationTest {
                 .when(userPort.getById(userId))
                 .thenReturn(Optional.of(new SessionUser(userId)));
 
-
         var cmd = new CreateSessionCommand(
                 userId,
                 "RPG Session in DB",
@@ -69,7 +68,7 @@ class SessionServiceIntegrationTest {
                 (short) 5,
                 DifficultyLevel.HARD,
                 Visibility.PUBLIC,
-                1,
+                2,
                 6
         );
 
@@ -80,7 +79,6 @@ class SessionServiceIntegrationTest {
         assertThat(sessionId).isNotNull();
         assertSessionInDatabase(sessionId, cmd);
     }
-
 
     @Test
     @Order(1)
@@ -198,6 +196,34 @@ class SessionServiceIntegrationTest {
         assertThat(participant.getRole()).isEqualTo(ParticipantRole.PLAYER);
     }
 
+    @Test
+    public void shouldBeAbleToDeleteDraftSession() {
+        // given:
+        var userId = UserId.fromUUID(UUID.randomUUID());
+        // Mock user as it is treated as a separate domain so maybe some external service or whatever
+        Mockito
+                .when(userPort.getById(userId))
+                .thenReturn(Optional.of(new SessionUser(userId)));
+
+        var cmd = new CreateSessionCommand(
+                userId,
+                "RPG Session in DB",
+                LocalDateTime.now().plusDays(1),
+                (short) 5,
+                DifficultyLevel.HARD,
+                Visibility.PUBLIC,
+                2,
+                6
+        );
+
+        var localSession = sessionCommandServicePort.createSession(cmd);
+
+        // when:
+        sessionCommandServicePort.deleteSession(new DeleteSessionCommand(localSession, userId));
+
+        // then:
+        assertThat(sessionRepositoryPort.findById(localSession)).isNotPresent();
+    }
 
     private void assertSessionInDatabase(SessionId sessionId, CreateSessionCommand cmd) {
         var session = sessionRepositoryPort.findById(sessionId)
@@ -224,4 +250,5 @@ class SessionServiceIntegrationTest {
         var joinRequestCount = session.getJoinRequests().size();
         assertThat(joinRequestCount).isEqualTo(0);
     }
+
 }
