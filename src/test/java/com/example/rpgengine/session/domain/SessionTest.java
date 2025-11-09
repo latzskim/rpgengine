@@ -9,12 +9,9 @@ import org.junit.jupiter.params.provider.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
-import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -213,21 +210,27 @@ class SessionTest {
         // then:
         assertThat(session.getDomainEvents()).hasSize(1);
         var event = session.getDomainEvents().getFirst();
-        assertThat(event).isInstanceOf(SessionScheduled.class);
-        SessionScheduled sessionScheduled = (SessionScheduled) event;
-        assertThat(sessionScheduled.sessionId()).isEqualTo(session.getId());
+        assertThat(event).isInstanceOf(SessionStateEvent.SessionScheduled.class);
+        SessionStateEvent.SessionScheduled sessionScheduled = (SessionStateEvent.SessionScheduled) event;
+        assertThat(sessionScheduled.id()).isEqualTo(session.getId());
     }
 
     //    @ParameterizedTest
 //    @EnumSource(value = SessionStatus.class, names = {"DRAFT"}, mode = EnumSource.Mode.EXCLUDE)
     @Test
     public void shouldThrowSessionScheduleException() {
-        // given:
+        // given session without start date:
         var session = new Session();
-        session.scheduleSession(); // make it already scheduled
 
         // when & then:
-        assertThrows(SessionScheduleException.class, session::scheduleSession);
+        assertThrows(SessionStateException.class, session::scheduleSession);
+
+        // given session with start date that has been already scheduled:
+        session = makePublicSession();
+        session.scheduleSession(); // already scheduled
+
+        // when & then
+        assertThrows(SessionStateException.class, session::scheduleSession);
     }
 
     @Test

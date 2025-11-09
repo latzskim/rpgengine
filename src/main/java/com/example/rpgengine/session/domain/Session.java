@@ -2,7 +2,7 @@ package com.example.rpgengine.session.domain;
 
 import com.example.rpgengine.session.domain.event.*;
 import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
-import com.example.rpgengine.session.domain.exception.SessionScheduleException;
+import com.example.rpgengine.session.domain.exception.SessionStateException;
 import com.example.rpgengine.session.domain.exception.SessionUserNotFound;
 import com.example.rpgengine.session.domain.exception.SessionValidationException;
 import com.example.rpgengine.session.domain.valueobject.*;
@@ -71,7 +71,6 @@ public class Session {
     )
     private Set<SessionParticipant> participants = new HashSet<>();
 
-
     @ElementCollection
     @CollectionTable(
             name = "join_requests",
@@ -82,6 +81,18 @@ public class Session {
             }
     )
     private Set<JoinRequest> joinRequests = new HashSet<>();
+
+    @Column(name = "started_at")
+    private LocalDateTime startedAt;
+
+    @Column(name = "finished_at")
+    private LocalDateTime finishedAt;
+
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
 
     @Transient
     private List<Object> domainEvents = new ArrayList<>();
@@ -136,7 +147,6 @@ public class Session {
         return List.copyOf(domainEvents);
     }
 
-
     // Returns copy of participants
     public Set<SessionParticipant> getParticipants() {
         return Set.copyOf(this.participants);
@@ -157,7 +167,6 @@ public class Session {
         this.participants.add(gmParticipant);
         this.domainEvents.add(new SessionGMAssigned(this.id, gmId));
     }
-
 
     protected void addParticipant(UserId userId) {
         var playerParticipant = new SessionParticipant(userId, ParticipantRole.PLAYER);
@@ -186,10 +195,16 @@ public class Session {
 
     public void scheduleSession() {
         if (this.status != SessionStatus.DRAFT) {
-            throw new SessionScheduleException();
+            throw new SessionStateException(format("cannot schedule session in state: %s", this.status));
         }
+
+        if (this.startDate == null) {
+            throw new SessionStateException("session must have start date");
+
+        }
+
         this.status = SessionStatus.SCHEDULED;
-        this.domainEvents.add(new SessionScheduled(this.id));
+        this.domainEvents.add(new SessionStateEvent.SessionScheduled(this.id));
     }
 
     public void approveJoinRequest(UserId userId) {
