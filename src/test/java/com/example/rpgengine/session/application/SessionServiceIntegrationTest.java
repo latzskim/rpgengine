@@ -14,6 +14,7 @@ import org.junit.jupiter.api.*;
 import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
@@ -35,12 +36,21 @@ class SessionServiceIntegrationTest {
     @MockitoBean
     private UserPort userPort;
 
+    @MockitoBean
+    private ApplicationEventPublisher publisher;
+
     private SessionCommandServicePort sessionCommandServicePort;
 
     @BeforeAll
     void setUp() {
         sessionRepositoryPort.deleteAll();
-        sessionCommandServicePort = new SessionCommandService(sessionRepositoryPort, userPort);
+        sessionCommandServicePort = new SessionCommandService(sessionRepositoryPort, userPort, publisher);
+
+        // TODO: fix tests to actually use event publisher?
+        Mockito
+                .doNothing()
+                .when(publisher).publishEvent(Mockito.any());
+
     }
 
     @AfterAll
@@ -63,6 +73,7 @@ class SessionServiceIntegrationTest {
 
         var cmd = new CreateSessionCommand(
                 userId,
+                "Title",
                 "RPG Session in DB",
                 LocalDateTime.now().plusDays(1),
                 (short) 5,
@@ -207,6 +218,7 @@ class SessionServiceIntegrationTest {
 
         var cmd = new CreateSessionCommand(
                 userId,
+                "Title",
                 "RPG Session in DB",
                 LocalDateTime.now().plusDays(1),
                 (short) 5,
