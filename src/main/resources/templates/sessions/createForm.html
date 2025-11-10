@@ -28,7 +28,15 @@
                   class="form-create-session">
                 <!-- Session Title / Description -->
                 <div class="form-group">
-                    <label for="description" class="form-label">Quest Title & Description <span
+                    <label for="title" class="form-label">Quest Title <span
+                            class="text-danger">*</span></label>
+                    <input id="title" th:field="*{title}" class="form-control" type="text"
+                              placeholder="Title..." required></input>
+                    <p th:if="${#fields.hasErrors('title')}" th:errors="*{title}" class="form-error"></p>
+                </div>
+
+                <div class="form-group">
+                    <label for="description" class="form-label">Quest Description <span
                             class="text-danger">*</span></label>
                     <textarea id="description" th:field="*{description}" rows="4" class="form-control"
                               placeholder="A dark cult awakens beneath the ruins of Eldergrove..." required></textarea>

@@ -22,13 +22,18 @@ import static java.lang.String.format;
 @Getter
 public class Session {
     public static final int MIN_PLAYERS_EXCLUDING_GM = 2;
+
     public static final int MAX_PLAYERS_EXCLUDING_GM = 10;
+
     @EmbeddedId
     private SessionId id;
 
     @Embedded
     @AttributeOverride(name = "userId", column = @Column(name = "owner_id", nullable = false, updatable = false))
     private UserId ownerId;
+
+    @Column(name = "title", nullable = false)
+    private String title;
 
     @Column(name = "description", nullable = false)
     private String description;
@@ -99,6 +104,7 @@ public class Session {
 
     public Session(
             UserId ownerId,
+            String title,
             String description,
             LocalDateTime startDate,
             Duration duration,
@@ -111,6 +117,7 @@ public class Session {
 
 
         this.id = new SessionId(UUID.randomUUID());
+        this.title = title;
         this.ownerId = ownerId;
         this.description = description;
         this.startDate = startDate;
@@ -123,6 +130,19 @@ public class Session {
 
         var gmParticipant = new SessionParticipant(ownerId, ParticipantRole.GAMEMASTER);
         this.participants.add(gmParticipant);
+
+        this.domainEvents.add(new SessionCreated(
+                this.id,
+                this.ownerId,
+                this.title,
+                this.description,
+                this.startDate,
+                this.estimatedDurationInMinutes,
+                this.difficulty,
+                this.visibility,
+                this.minPlayers,
+                this.maxPlayers
+        ));
     }
 
     private static void validatePlayersRange(Integer minPlayers, Integer maxPlayers) {

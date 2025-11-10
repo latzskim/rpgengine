@@ -1,7 +1,8 @@
 package com.example.rpgengine.user.domain;
 
 
-import com.example.rpgengine.user.domain.event.UserRegisteredEvent;
+import com.example.rpgengine.shared.domain.event.UserActivated;
+import com.example.rpgengine.user.domain.event.UserRegistered;
 import com.example.rpgengine.user.domain.valueobject.Email;
 import com.example.rpgengine.user.domain.valueobject.Status;
 import jakarta.persistence.*;
@@ -23,6 +24,9 @@ public class User {
 
     @Column(name = "username", nullable = false, unique = true)
     private String username;
+
+    @Column(name = "display_name", nullable = false, unique = true)
+    private String displayName;
 
     @Embedded
     private Email email;
@@ -58,9 +62,9 @@ public class User {
         this.email = email;
         this.status = Status.ACTIVATION_PENDING;
         this.createdAt = Instant.now();
+        this.displayName = "Player#" + this.id.toString().split("-")[0];
 
-
-        this.domainEvents.add(new UserRegisteredEvent(
+        this.domainEvents.add(new UserRegistered(
                 this.getId(),
                 this.getUsername(),
                 this.getEmail(),
@@ -77,6 +81,12 @@ public class User {
         if (this.getStatus() != Status.ACTIVATION_PENDING) {
             throw new IllegalStateException("User cannot be activated due to illegal state");
         }
+
+        this.domainEvents.add(new UserActivated(
+                this.id,
+                this.username,
+                this.displayName
+        ));
 
         this.status = Status.ACTIVE;
     }
