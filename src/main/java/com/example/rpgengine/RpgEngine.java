@@ -1,6 +1,11 @@
 package com.example.rpgengine;
 
-import com.example.rpgengine.session.domain.port.out.SessionRepositoryPort;
+import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
+import com.example.rpgengine.session.domain.port.in.query.SessionsEligibleToPlayQuery;
+import com.example.rpgengine.session.domain.port.in.query.SortBy;
+import com.example.rpgengine.session.domain.port.in.query.SortDirection;
+import com.example.rpgengine.session.domain.port.in.query.SortField;
+import com.example.rpgengine.session.domain.valueobject.SessionStatus;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.stereotype.Controller;
@@ -17,16 +22,23 @@ public class RpgEngine {
 
 @Controller
 class IndexController {
-    // TODO: do not use repo port :)
-    private final SessionRepositoryPort sessionRepositoryPort;
+    private final SessionViewQueryServicePort sessionViewQueryServicePort;
 
-    IndexController(SessionRepositoryPort sessionRepositoryPort) {
-        this.sessionRepositoryPort = sessionRepositoryPort;
+    IndexController(SessionViewQueryServicePort sessionViewQueryServicePort) {
+        this.sessionViewQueryServicePort = sessionViewQueryServicePort;
     }
 
     @GetMapping("/")
     String index(Model model) {
-        model.addAttribute("sessions", sessionRepositoryPort.findAll());
+        var defaultSessions = sessionViewQueryServicePort.getSessionsEligibleToPlay(new SessionsEligibleToPlayQuery(
+                SessionStatus.SCHEDULED,
+                null,
+                0, // TODO ?
+                20,// TODO: ?
+                new SortBy(SortField.STARTING_AT, SortDirection.ASC) // newest first.
+        ));
+
+        model.addAttribute("sessions", defaultSessions);
         return "index";
     }
 

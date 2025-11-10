@@ -33,6 +33,7 @@ class SessionController {
             model.addAttribute("createSessionCommand", new CreateSessionCommand(
                     sessionUser.id(),
                     "",
+                    "",
                     null,
                     null,
                     null,
@@ -54,6 +55,7 @@ class SessionController {
             try {
                 var sessionId = sessionCommandServicePort.createSession(new CreateSessionCommand(
                         sessionUser.id(),
+                        command.title(),
                         command.description(),
                         command.startDate(),
                         command.durationInMinutes(),

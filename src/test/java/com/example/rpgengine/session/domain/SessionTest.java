@@ -9,12 +9,11 @@ import org.junit.jupiter.params.provider.*;
 
 import java.time.Duration;
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.as;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.fail;
@@ -213,21 +212,27 @@ class SessionTest {
         // then:
         assertThat(session.getDomainEvents()).hasSize(1);
         var event = session.getDomainEvents().getFirst();
-        assertThat(event).isInstanceOf(SessionScheduled.class);
-        SessionScheduled sessionScheduled = (SessionScheduled) event;
-        assertThat(sessionScheduled.sessionId()).isEqualTo(session.getId());
+        assertThat(event).isInstanceOf(SessionStatusEvent.SessionScheduled.class);
+        SessionStatusEvent.SessionScheduled sessionScheduled = (SessionStatusEvent.SessionScheduled) event;
+        assertThat(sessionScheduled.id()).isEqualTo(session.getId());
     }
 
     //    @ParameterizedTest
 //    @EnumSource(value = SessionStatus.class, names = {"DRAFT"}, mode = EnumSource.Mode.EXCLUDE)
     @Test
     public void shouldThrowSessionScheduleException() {
-        // given:
+        // given session without start date:
         var session = new Session();
-        session.scheduleSession(); // make it already scheduled
 
         // when & then:
-        assertThrows(SessionScheduleException.class, session::scheduleSession);
+        assertThrows(SessionStatusException.class, session::scheduleSession);
+
+        // given session with start date that has been already scheduled:
+        session = makePublicSession();
+        session.scheduleSession(); // already scheduled
+
+        // when & then
+        assertThrows(SessionStatusException.class, session::scheduleSession);
     }
 
     @Test
@@ -296,6 +301,35 @@ class SessionTest {
         assertThat(event).isInstanceOf(SessionUserRejected.class);
     }
 
+    @Test
+    public void shouldBeAbleToDeleteDraftSession() {
+        // given:
+        var session = makePublicSession();
+        assertThat(session.getDomainEvents()).hasSize(0);
+        assertThat(session.getStatus()).isEqualTo(SessionStatus.DRAFT);
+
+        // when:
+        session.delete();
+
+        // then:
+        assertThat(session.getDomainEvents()).hasSize(1);
+        var event = getDomainEvent(
+                session.getDomainEvents(),
+                SessionStatusEvent.SessionHardDeleted.class
+        ).orElseThrow(AssertionError::new);
+
+        assertThat(event.id()).isEqualTo(session.getId());
+    }
+
+    @Test
+    public void shouldNotBeAbleToDeleteSessionOtherThanDraft() {
+        // given:
+        var session = makePublicSession();
+        session.scheduleSession();
+
+        // when & then:
+        assertThrows(SessionStatusException.class, session::delete);
+    }
 
     private static Stream<Arguments> provideJoinToPublicSession() {
         return Stream.of(
@@ -328,5 +362,12 @@ class SessionTest {
                 validMinPlayers,
                 validMaxPlayers
         );
+    }
+
+    private static <T> Optional<T> getDomainEvent(List<?> events, Class<T> clazz) {
+        return events.stream()
+                .filter(clazz::isInstance)
+                .map(clazz::cast)
+                .findFirst();
     }
 }

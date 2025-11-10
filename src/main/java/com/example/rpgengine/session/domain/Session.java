@@ -2,7 +2,7 @@ package com.example.rpgengine.session.domain;
 
 import com.example.rpgengine.session.domain.event.*;
 import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
-import com.example.rpgengine.session.domain.exception.SessionScheduleException;
+import com.example.rpgengine.session.domain.exception.SessionStatusException;
 import com.example.rpgengine.session.domain.exception.SessionUserNotFound;
 import com.example.rpgengine.session.domain.exception.SessionValidationException;
 import com.example.rpgengine.session.domain.valueobject.*;
@@ -22,13 +22,18 @@ import static java.lang.String.format;
 @Getter
 public class Session {
     public static final int MIN_PLAYERS_EXCLUDING_GM = 2;
+
     public static final int MAX_PLAYERS_EXCLUDING_GM = 10;
+
     @EmbeddedId
     private SessionId id;
 
     @Embedded
     @AttributeOverride(name = "userId", column = @Column(name = "owner_id", nullable = false, updatable = false))
     private UserId ownerId;
+
+    @Column(name = "title", nullable = false)
+    private String title;
 
     @Column(name = "description", nullable = false)
     private String description;
@@ -71,7 +76,6 @@ public class Session {
     )
     private Set<SessionParticipant> participants = new HashSet<>();
 
-
     @ElementCollection
     @CollectionTable(
             name = "join_requests",
@@ -83,11 +87,24 @@ public class Session {
     )
     private Set<JoinRequest> joinRequests = new HashSet<>();
 
+    @Column(name = "started_at")
+    private LocalDateTime startedAt;
+
+    @Column(name = "finished_at")
+    private LocalDateTime finishedAt;
+
+    @Column(name = "cancelled_at")
+    private LocalDateTime cancelledAt;
+
+    @Column(name = "updated_at")
+    private LocalDateTime updatedAt;
+
     @Transient
     private List<Object> domainEvents = new ArrayList<>();
 
     public Session(
             UserId ownerId,
+            String title,
             String description,
             LocalDateTime startDate,
             Duration duration,
@@ -100,6 +117,7 @@ public class Session {
 
 
         this.id = new SessionId(UUID.randomUUID());
+        this.title = title;
         this.ownerId = ownerId;
         this.description = description;
         this.startDate = startDate;
@@ -112,6 +130,19 @@ public class Session {
 
         var gmParticipant = new SessionParticipant(ownerId, ParticipantRole.GAMEMASTER);
         this.participants.add(gmParticipant);
+
+        this.domainEvents.add(new SessionCreated(
+                this.id,
+                this.ownerId,
+                this.title,
+                this.description,
+                this.startDate,
+                this.estimatedDurationInMinutes,
+                this.difficulty,
+                this.visibility,
+                this.minPlayers,
+                this.maxPlayers
+        ));
     }
 
     private static void validatePlayersRange(Integer minPlayers, Integer maxPlayers) {
@@ -136,7 +167,6 @@ public class Session {
         return List.copyOf(domainEvents);
     }
 
-
     // Returns copy of participants
     public Set<SessionParticipant> getParticipants() {
         return Set.copyOf(this.participants);
@@ -157,7 +187,6 @@ public class Session {
         this.participants.add(gmParticipant);
         this.domainEvents.add(new SessionGMAssigned(this.id, gmId));
     }
-
 
     protected void addParticipant(UserId userId) {
         var playerParticipant = new SessionParticipant(userId, ParticipantRole.PLAYER);
@@ -186,10 +215,16 @@ public class Session {
 
     public void scheduleSession() {
         if (this.status != SessionStatus.DRAFT) {
-            throw new SessionScheduleException();
+            throw new SessionStatusException(format("cannot schedule session in status: %s", this.status));
         }
+
+        if (this.startDate == null) {
+            throw new SessionStatusException("session must have start date");
+
+        }
+
         this.status = SessionStatus.SCHEDULED;
-        this.domainEvents.add(new SessionScheduled(this.id));
+        this.domainEvents.add(new SessionStatusEvent.SessionScheduled(this.id));
     }
 
     public void approveJoinRequest(UserId userId) {
@@ -218,4 +253,22 @@ public class Session {
         // TODO: maybe in the future, both owner and GM can approve
         return this.ownerId.equals(userId);
     }
+
+    public void delete() {
+        if (this.status != SessionStatus.DRAFT) {
+            throw new SessionStatusException(format("cannot delete session in status: %s", this.status));
+        }
+        this.domainEvents.add(new SessionStatusEvent.SessionHardDeleted(this.id));
+    }
+
+    public boolean isGameMaster(UserId userId) {
+        return participants.stream()
+                .filter(p -> p.getUserId().equals(userId))
+                .anyMatch(p -> p.getRole().equals(ParticipantRole.GAMEMASTER));
+    }
+
+    public boolean isOwner(UserId userId) {
+        return this.ownerId.equals(userId);
+    }
+
 }

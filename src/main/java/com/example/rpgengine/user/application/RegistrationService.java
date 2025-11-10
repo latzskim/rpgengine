@@ -6,11 +6,13 @@ import com.example.rpgengine.user.domain.port.in.command.RegisterCommand;
 import com.example.rpgengine.user.domain.User;
 import com.example.rpgengine.user.domain.port.out.UserRepositoryPort;
 import com.example.rpgengine.user.domain.valueobject.Email;
+import jakarta.transaction.Transactional;
 import org.springframework.context.ApplicationEventPublisher;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
+@Transactional
 class RegistrationService implements RegistrationServicePort {
     private final UserRepositoryPort userRepository;
     private final ApplicationEventPublisher eventPublisher;
@@ -38,9 +40,7 @@ class RegistrationService implements RegistrationServicePort {
 
         userRepository.save(user);
 
-        for (var event : user.getDomainEvents()) {
-            eventPublisher.publishEvent(event);
-        }
+        user.getDomainEvents().forEach(eventPublisher::publishEvent);
     }
 
     public void activateUser(ActivateCommand command) {
@@ -52,8 +52,6 @@ class RegistrationService implements RegistrationServicePort {
         user.activate();
         userRepository.save(user);
 
-        for (var event : user.getDomainEvents()) {
-            eventPublisher.publishEvent(event);
-        }
+        user.getDomainEvents().forEach(eventPublisher::publishEvent);
     }
 }
