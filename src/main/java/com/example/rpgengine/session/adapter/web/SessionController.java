@@ -2,9 +2,12 @@ package com.example.rpgengine.session.adapter.web;
 
 import com.example.rpgengine.session.domain.exception.SessionValidationException;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
+import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
 import com.example.rpgengine.session.domain.port.out.UserPort;
+import com.example.rpgengine.session.domain.valueobject.SessionId;
 import com.example.rpgengine.session.domain.valueobject.SessionUser;
+import com.example.rpgengine.session.domain.valueobject.UserId;
 import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -20,10 +23,16 @@ import java.util.Optional;
 @RequestMapping("/sessions")
 class SessionController {
     private final SessionCommandServicePort sessionCommandServicePort;
+    private final SessionViewQueryServicePort sessionViewQueryServicePort;
     private final UserPort userPort;
 
-    SessionController(SessionCommandServicePort sessionCommandServicePort, UserPort userPort) {
+    SessionController(
+            SessionCommandServicePort sessionCommandServicePort,
+            SessionViewQueryServicePort sessionViewQueryServicePort,
+            UserPort userPort
+    ) {
         this.sessionCommandServicePort = sessionCommandServicePort;
+        this.sessionViewQueryServicePort = sessionViewQueryServicePort;
         this.userPort = userPort;
     }
 
@@ -75,9 +84,16 @@ class SessionController {
         }).orElse("access-denied");
     }
 
-    @GetMapping("/{id}")
-    String sessionDetail(@PathVariable String id, Model model) {
-        return "sessions/sessionDetail";
+    @GetMapping("/{id}/edit")
+    String sessionEdit(@PathVariable String id, Model model, Principal principal) {
+        return getSessionUser(principal).map(sessionUser -> {
+            var sessionReadModel = sessionViewQueryServicePort.getSessionByUserId(
+                    SessionId.fromString(id),
+                    sessionUser.id()
+            );
+            model.addAttribute("ses", sessionReadModel);
+            return "sessions/sessionEdit";
+        }).orElse("access-denied");
     }
 
 

@@ -1,14 +1,66 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-<th:block th:fragment="header">
-    <header class="site-header">
-        <div class="container header__inner">
-            <a href="/" class="logo">RPG Engine</a>
-            <nav class="nav">
-                <a th:href="@{/sessions/create}" class="btn btn--primary">+ New Session</a>
-            </nav>
+<header class="global-header">
+    <div class="global-nav-container">
+        <a href="#" class="logo">
+            <svg
+                    width="32"
+                    height="32"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+            >
+                <path
+                        d="M12 2L2 7V17L12 22L22 17V7L12 2Z"
+                        stroke="var(--accent-blue)"
+                        stroke-width="2"
+                        stroke-linejoin="round"
+                />
+                <path
+                        d="M2 7L12 12M12 22V12M22 7L12 12M17 4.5L7 9.5"
+                        stroke="var(--text-secondary)"
+                        stroke-width="2"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                />
+            </svg>
+            <span>TTRPG Sessions</span>
+        </a>
+
+        <nav class="global-nav">
+            <a href="#" class="nav-link active">Dashboard</a>
+            <a href="list-sessions.html" class="nav-link"
+            >Find Sessions</a
+            >
+            <a href="#" class="nav-link">My Games</a>
+            <a href="create-session.html" class="nav-link">Create</a>
+        </nav>
+
+        <div class="user-profile">
+            <button class="icon-btn" aria-label="Notifications">
+                <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="18"
+                        height="18"
+                        fill="currentColor"
+                        viewBox="0 0 16 16"
+                >
+                    <path
+                            d="M8 16a2 2 0 0 0 2-2H6a2 2 0 0 0 2 2zM8 1.918l-.797.161A4.002 4.002 0 0 0 4 6c0 .628-.134 2.197-.459 3.742-.16.767-.376 1.566-.663 2.258h10.244c-.287-.692-.502-1.49-.663-2.258C12.134 8.197 12 6.628 12 6a4.002 4.002 0 0 0-3.203-3.92L8 1.917zM14.22 12c.223.447.481.801.78 1H1c.299-.199.557-.553.78-1C2.68 10.2 3 6.88 3 6c0-2.42 1.72-4.44 4.005-4.901a1 1 0 1 1 1.99 0A5.002 5.002 0 0 1 13 6c0 .88.32 4.2 1.22 6z"
+                    />
+                </svg>
+            </button>
+            <img
+                    src="https://placehold.co/64x64/464a52/a0a4ab?text=GM"
+                    alt="User Avatar"
+                    class="avatar"
+            />
+            <span>GandalfTheGrey</span>
         </div>
-    </header>
-</th:block>
+    </div>
+</header>
+
+
 </html>

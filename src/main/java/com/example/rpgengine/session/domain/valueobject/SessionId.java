@@ -20,4 +20,8 @@ public class SessionId {
     public SessionId(UUID id) {
         this.id = id;
     }
+
+    public static SessionId fromString(String id) {
+        return new SessionId(UUID.fromString(id));
+    }
 }

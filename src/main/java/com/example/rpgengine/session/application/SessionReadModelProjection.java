@@ -44,6 +44,8 @@ class SessionReadModelProjection {
                 .status(SessionStatus.DRAFT) // TODO: should be in event?
                 .startDate(event.startDate())
                 .visibility(event.visibility())
+                .difficulty(event.difficulty())
+                .estimatedDurationInMinutes(event.estimatedDurationInMinutes())
                 .build();
 
         sessionReadModelRepositoryPort.save(sessionReadModel);

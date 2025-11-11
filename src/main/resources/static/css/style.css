@@ -1,274 +1,1053 @@
-/* -------------------------------------------------
-   1. Global variables & resets – Medieval RPG Theme
-   ------------------------------------------------- */
-html {
-    font-family: 'Crimson Text', Georgia, serif;   /* GLOBAL FONT */
-    font-size: 16px;
-}
+  :root {
+                --bg-primary: #1a1d21; /* Main background */
+                --bg-secondary: #25282e; /* Card background */
+                --bg-tertiary: #30343b; /* Input/list item background */
+                --border-color: #464a52;
+                --text-primary: #f0f0f0; /* Light text */
+                --text-secondary: #a0a4ab; /* Labels and secondary text */
+                --text-tertiary: #70747a;
+                --accent-blue: #3b82f6;
+                --accent-red: #ef4444;
+                --accent-green: #22c55e;
+                --accent-red-hover: #dc2626;
+                --accent-green-hover: #16a34a;
+                --accent-blue-hover: #2563eb;
+            }
 
-:root {
-    /* Earthy, parchment base */
-    --clr-bg:          #FDF6E3;        /* Warm parchment/off-white */
-    --clr-surface:     #FFF8E7;        /* Slightly aged paper */
+            *,
+            *::before,
+            *::after {
+                box-sizing: border-box;
+                margin: 0;
+                padding: 0;
+            }
 
-    /* Dark wood & stone accents */
-    --clr-primary:     #3E2723;        /* Deep walnut brown (headers, text) */
-    --clr-secondary:   #5D4037;        /* Burnt umber (borders, shadows) */
+            /* RE-PLACE the existing 'body' style with this */
+            body {
+                font-family: "Inter", sans-serif;
+                background: linear-gradient(
+                    90deg,
+                    rgba(21, 25, 28, 1) 0%,
+                    rgba(31, 36, 43, 1) 50%,
+                    rgba(21, 25, 28, 1) 100%
+                );
+                color: var(--text-primary);
 
-    /* Medieval metals & gems */
-    --clr-accent:      #B76E79;        /* Burnished copper (buttons, links) */
-    --clr-success:     #2E7D32;        /* Deep forest green (open sessions) */
-    --clr-warning:     #EF6C00;        /* Amber glow (full sessions) */
-    --clr-danger:      #D32F2F;        /* Rust-red blood (closed) */
+                /* New styles for sticky footer layout */
+                display: flex;
+                flex-direction: column;
+                min-height: 100vh;
+                padding: 0; /* Removed padding */
+            }
 
-    /* Text & muted tones */
-    --clr-text:        #2C1810;        /* Rich ink black-brown */
-    --clr-muted:       #6D4C41;        /* Faded sepia */
+            .container {
+                width: 100%;
+                max-width: 1100px;
+                border-radius: 12px;
+                border: 1px solid var(--border-color);
+                overflow: hidden;
+                box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+                background-color: var(--bg-secondary);
+            }
 
-    /* Layout helpers */
-    --radius:          .25rem;         /* Subtle, worn edges */
-    --shadow-sm:       0 1px 3px rgba(62, 39, 35, .1);  /* Soft paper shadow */
-    --shadow-md:       0 4px 12px rgba(62, 39, 35, .15); /* Deeper, like a tome */
-    --transition:      all .3s ease;   /* Gentle, like turning pages */
-}
+            /* --- Header --- */
+            .header {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1.25rem 1.5rem;
+                border-bottom: 1px solid var(--border-color);
+                background-color: var(--bg-secondary);
+            }
 
-/* Dark mode (candlelit tavern – toggle with .dark on <html>) */
-html.dark {
-    --clr-bg:          #1A0F0B;        /* Pitch-black night */
-    --clr-surface:     #2C1810;        /* Flickering torchlight */
-    --clr-text:        #E8D5A3;        /* Glowing ember text */
-    --clr-muted:       #A1887F;        /* Smoky haze */
-}
+            .header-left {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
 
-/* -------------------------------------------------
-   2. Base typography & layout
-   ------------------------------------------------- */
-*,
-*::before,
-*::after { box-sizing: border-box; }
+            .header h1 {
+                font-size: 1.25rem;
+                font-weight: 600;
+            }
 
-html {
-    font-family: 'Crimson Text', 'Georgia', serif;  /* Serif for medieval script feel */
-    font-size: 16px;
-}
-body {
-    margin: 0;
-    background: var(--clr-bg);
-    color: var(--clr-text);
-    line-height: 1.6;
-}
+            .btn {
+                font-family: "Inter", sans-serif;
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                border: none;
+                cursor: pointer;
+                font-size: 0.875rem;
+                font-weight: 500;
+                transition: background-color 0.2s ease;
+            }
 
-.container {
-    width: min(100%, 1200px);
-    margin-inline: auto;
-    padding-inline: 1rem;
-}
+            .btn-back {
+                background: none;
+                border: 1px solid var(--border-color);
+                color: var(--text-secondary);
+                display: flex;
+                align-items: center;
+                gap: 0.3rem;
+            }
 
-/* Subtle parchment texture overlay (optional, for immersion) */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background:
-        radial-gradient(circle at 20% 80%, rgba(255,248,231,.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(253,246,227,.03) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
-}
+            .btn-back:hover {
+                background-color: var(--bg-tertiary);
+            }
 
-/* -------------------------------------------------
-   3. Header – Wrought-iron banner
-   ------------------------------------------------- */
-.site-header {
-    background: linear-gradient(to bottom, var(--clr-secondary), var(--clr-primary));  /* Wood grain fade */
-    color: #F5F5DC;  /* Ivory text */
-    padding: 1rem 0;
-    box-shadow: var(--shadow-md);
-    border-bottom: 3px solid var(--clr-accent);  /* Copper trim */
-}
-.header__inner {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-}
-.logo {
-    font-weight: 700;
-    font-size: 1.75rem;
-    color: #F5F5DC;
-    text-decoration: none;
-    text-shadow: 1px 1px 2px rgba(0,0,0,.3);  /* Engraved look */
-}
-.nav a { color: #F5F5DC; text-decoration: none; }
+            .btn-primary {
+                background-color: var(--accent-blue);
+                color: white;
+            }
 
-/* -------------------------------------------------
-   4. Buttons – Forged metal seals
-   ------------------------------------------------- */
-.btn {
-    display: inline-block;
-    padding: .75rem 1.5rem;
-    border-radius: var(--radius);
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
-    transition: var(--transition);
-    cursor: pointer;
-    border: 2px solid transparent;  /* For hover glow */
-    background: var(--clr-accent);
-    color: #FFF8E7;  /* Parchment text on metal */
-    box-shadow: var(--shadow-sm);
-}
-.btn--primary:hover {
-    background: #A0522D;  /* Darker copper */
-    transform: translateY(-1px);  /* Subtle lift */
-    box-shadow: var(--shadow-md);
-}
+            .btn-primary:hover {
+                background-color: var(--accent-blue-hover);
+            }
 
-/* -------------------------------------------------
-   5. Hero section – Illuminated manuscript
-   ------------------------------------------------- */
-.hero {
-    text-align: center;
-    padding: 3rem 1rem;
-    background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #CD853F 100%);  /* Autumn forest path */
-    color: #F5F5DC;
-    margin-bottom: 2rem;
-    border-bottom: 4px solid var(--clr-secondary);  /* Leather binding */
-    text-shadow: 1px 1px 2px rgba(0,0,0,.5);  /* Dramatic ink */
-}
-.hero h1 {
-    margin: 0 0 .5rem;
-    font-size: 2.75rem;
-    font-family: 'Uncial Antiqua', serif;  /* Optional: Load a fantasy font via Google Fonts */
-}
-.hero p {
-    margin: 0;
-    font-size: 1.25rem;
-}
+            /* --- Main Content --- */
+            .main-content {
+                padding: 1.5rem;
+                background-color: var(--bg-primary);
+            }
 
-/* -------------------------------------------------
-   6. Sessions table – Scrolled parchment ledger
-   ------------------------------------------------- */
-.sessions__title {
-    margin-bottom: 1rem;
-    color: var(--clr-primary);
-    border-bottom: 2px solid var(--clr-accent);  /* Wax seal line */
-    padding-bottom: .5rem;
-}
-.sessions__table {
-    width: 100%;
-    border-collapse: collapse;
-    background: var(--clr-surface);
-    box-shadow: var(--shadow-md);
-    border-radius: var(--radius);
-    overflow: hidden;
-    border: 1px solid var(--clr-secondary);  /* Leather edging */
-}
-.sessions__table th,
-.sessions__table td {
-    padding: .75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--clr-muted);  /* Faint ink lines */
-}
-.sessions__table th {
-    background: linear-gradient(to right, var(--clr-primary), var(--clr-secondary));  /* Wood panel */
-    color: #F5F5DC;
-    font-weight: 600;
-    text-shadow: 1px 1px 1px rgba(0,0,0,.3);
-}
-.sessions__table tr:hover {
-    background: rgba(183, 110, 121, .1);  /* Subtle copper wash */
-}
+            .banner-image {
+                width: 100%;
+                height: 200px;
+                object-fit: cover;
+                border-radius: 8px;
+                margin-bottom: 1.5rem;
+                background-color: var(--bg-tertiary);
+            }
 
-.participants {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-.participants li {
-    margin-bottom: .25rem;
-    font-size: .875rem;
-}
+            .content-grid {
+                display: grid;
+                grid-template-columns: repeat(2, 1fr);
+                gap: 2rem;
+            }
 
-/* Badges – Wax seals or gem inlays */
-.badge {
-    display: inline-block;
-    padding: .375em .75em;
-    font-size: .75rem;
-    font-weight: 600;
-    border-radius: 999px;
-    text-transform: uppercase;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.2);  /* Inner glow */
-}
-.badge--success {
-    background: var(--clr-success);
-    color: #F5F5DC;
-}
-.badge--warning {
-    background: var(--clr-warning);
-    color: #2C1810;
-}
-.badge--danger {
-    background: var(--clr-danger);
-    color: #F5F5DC;
-}
+            .column h2 {
+                font-size: 1.125rem;
+                font-weight: 600;
+                margin-bottom: 1.25rem;
+                color: var(--text-primary);
+            }
 
-/* -------------------------------------------------
-   7. Footer – Stone hearth
-   ------------------------------------------------- */
-.site-footer {
-    background: linear-gradient(to top, var(--clr-primary), var(--clr-secondary));  /* Hearth embers */
-    color: #E8D5A3;
-    text-align: center;
-    padding: 1.5rem 0;
-    margin-top: 0;
-    border-top: 3px solid var(--clr-accent);  /* Copper engraving */
-}
-.site-footer a {
-    color: #DEB887;  /* Burlywood link */
-    text-decoration: underline;
-}
-.site-footer a:hover { color: #F5F5DC; }
+            /* --- Form Groups --- */
+            .form-group {
+                margin-bottom: 1.25rem;
+            }
 
-/* -------------------------------------------------
-   8. Sticky Footer – Flexbox solution (unchanged)
-   ------------------------------------------------- */
-html, body { height: 100%; margin: 0; }
+            .form-group label {
+                display: block;
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: var(--text-secondary);
+                margin-bottom: 0.5rem;
+            }
 
-.page-wrapper {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-}
-.page-wrapper__inner { flex: 1 0 auto; }
-.page-push { flex-grow: 1; }
-.page-main { flex-shrink: 0; }
+            .input-group {
+                position: relative;
+            }
 
-.site-footer {
-    flex-shrink: 0;
-}
+            .input-group .icon {
+                position: absolute;
+                left: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                width: 20px;
+                height: 20px;
+                border-radius: 50%;
+                background-color: var(--bg-tertiary);
+            }
 
-/* -------------------------------------------------
-   9. Responsive tweaks – Mobile scroll like a map
-   ------------------------------------------------- */
-@media (max-width: 640px) {
-    .sessions__table { font-size: .875rem; }
-    .sessions__table th,
-    .sessions__table td { padding: .5rem .75rem; }
-    .hero h1 { font-size: 2rem; }
-}
+            .input,
+            .textarea,
+            .select {
+                width: 100%;
+                background-color: var(--bg-tertiary);
+                border: 1px solid var(--border-color);
+                border-radius: 6px;
+                padding: 0.75rem;
+                color: var(--text-primary);
+                font-size: 0.875rem;
+            }
+
+            .input-group .input {
+                padding-left: 2.5rem; /* Space for icon */
+            }
+
+            /* Make date/time inputs show placeholder */
+            .input:placeholder-shown {
+                color: var(--text-secondary);
+            }
+
+            .textarea {
+                resize: vertical;
+                min-height: 100px;
+                font-family: "Inter", sans-serif;
+            }
+
+            .select {
+                appearance: none;
+                background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%23a0a4ab' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3E%3C/svg%3E");
+                background-repeat: no-repeat;
+                background-position: right 0.75rem center;
+                background-size: 1.25em;
+            }
+
+            .form-group-inline {
+                display: flex;
+                gap: 1rem;
+            }
+
+            .form-group-inline > div {
+                flex: 1;
+            }
+
+            .avatar {
+                width: 32px;
+                height: 32px;
+                border-radius: 50%;
+                background-color: var(--border-color);
+                flex-shrink: 0;
+            }
+
+            .gm-info-inline {
+                display: flex;               /* flex container */
+                align-items: center;         /* vertical centering */
+                gap: 0.5rem;                 /* space between avatar & name */
+                min-width: 0;                /* allow flex child to shrink */
+            }
+
+            .gm-info {
+                padding: 0.75rem 0.75rem;    /* optional: match other cells */
+            }
+
+            .gm-info span {
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+
+            /* Slider */
+            .slider-group {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+            }
+
+            .slider-group .input {
+                width: 70px; /* Fixed width for number input */
+            }
+
+            .slider-group input[type="range"] {
+                flex: 1;
+                -webkit-appearance: none;
+                appearance: none;
+                width: 100%;
+                height: 4px;
+                background: var(--border-color);
+                border-radius: 2px;
+                outline: none;
+            }
+
+            .slider-group input[type="range"]::-webkit-slider-thumb {
+                -webkit-appearance: none;
+                appearance: none;
+                width: 16px;
+                height: 16px;
+                background: var(--text-primary);
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            .slider-group input[type="range"]::-moz-range-thumb {
+                width: 16px;
+                height: 16px;
+                background: var(--text-primary);
+                border-radius: 50%;
+                cursor: pointer;
+            }
+
+            /* --- Right Column --- */
+
+            /* Visibility Toggle */
+            .visibility-group {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                background-color: var(--bg-tertiary);
+                padding: 0.75rem 1rem;
+                border-radius: 6px;
+                margin-bottom: 1.25rem;
+            }
+
+            .visibility-group .label-group {
+                display: flex;
+                flex-direction: column;
+            }
+
+            .visibility-group .label-group label {
+                margin-bottom: 0.1rem;
+            }
+
+            .visibility-group .label-group span {
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: var(--text-primary);
+            }
+
+            /* Toggle Switch */
+            .switch {
+                position: relative;
+                display: inline-block;
+                width: 44px;
+                height: 24px;
+            }
+
+            .switch input {
+                opacity: 0;
+                width: 0;
+                height: 0;
+            }
+
+            .slider {
+                position: absolute;
+                cursor: pointer;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background-color: var(--border-color);
+                transition: 0.4s;
+                border-radius: 24px;
+            }
+
+            .slider:before {
+                position: absolute;
+                content: "";
+                height: 18px;
+                width: 18px;
+                left: 3px;
+                bottom: 3px;
+                background-color: white;
+                transition: 0.4s;
+                border-radius: 50%;
+            }
+
+            input:checked + .slider {
+                background-color: var(--accent-blue);
+            }
+
+            input:checked + .slider:before {
+                transform: translateX(20px);
+            }
+
+            /* Player Lists */
+            .player-list {
+                list-style: none;
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .player-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                background-color: var(--bg-tertiary);
+                padding: 0.5rem 0.75rem;
+                border-radius: 6px;
+            }
+
+            .player-info {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+            }
+
+            .player-info span {
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+
+            .icon-btn {
+                background: none;
+                border: none;
+                cursor: pointer;
+                color: var(--text-secondary);
+                padding: 0.25rem;
+            }
+
+            .icon-btn:hover {
+                color: var(--text-primary);
+            }
+
+            .icon-btn svg {
+                width: 16px;
+                height: 16px;
+            }
+
+            .player-status {
+                display: flex;
+                align-items: center;
+                gap: 0.3rem;
+            }
+
+            .player-status .icon-btn {
+                color: var(--text-tertiary);
+            }
+            .player-status .icon-btn:hover {
+                color: var(--text-secondary);
+            }
+
+            /* Request Actions */
+            .request-actions {
+                display: flex;
+                gap: 0.5rem;
+            }
+
+            .btn-icon {
+                display: flex;
+                align-items: center;
+                gap: 0.3rem;
+                padding: 0.4rem 0.8rem;
+            }
+
+            .btn-icon svg {
+                width: 14px;
+                height: 14px;
+            }
+
+            .btn-danger {
+                background-color: var(--accent-red);
+                color: white;
+            }
+            .btn-danger:hover {
+                background-color: var(--accent-red-hover);
+            }
+
+            .btn-success {
+                background-color: var(--accent-green);
+                color: white;
+            }
+            .btn-success:hover {
+                background-color: var(--accent-green-hover);
+            }
+
+            /* --- Footer --- */
+            .footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 1.25rem 1.5rem;
+                border-top: 1px solid var(--border-color);
+                background-color: var(
+                    --bg-secondary
+                ); /* Ensure footer matches card bg */
+            }
+
+            .footer-right {
+                display: flex;
+                gap: 0.75rem;
+            }
+
+            .btn-danger-outline {
+                background: none;
+                border: 1px solid var(--accent-red);
+                color: var(--accent-red);
+            }
+            .btn-danger-outline:hover {
+                background-color: rgba(239, 68, 68, 0.1);
+            }
+
+            .btn-secondary {
+                background-color: var(--bg-tertiary);
+                color: var(--text-primary);
+                border: 1px solid var(--border-color);
+            }
+            .btn-secondary:hover {
+                background-color: var(--border-color);
+            }
+
+            /* --- Responsive --- */
+            @media (max-width: 900px) {
+                .content-grid {
+                    grid-template-columns: 1fr;
+                }
+            }
+
+            @media (max-width: 640px) {
+                body {
+                    padding: 0.5rem;
+                }
+
+                .container {
+                    border-radius: 0;
+                }
+
+                .header {
+                    padding: 1rem;
+                    flex-wrap: wrap;
+                    gap: 1rem;
+                }
+
+                .header h1 {
+                    font-size: 1.125rem;
+                    order: -1; /* Move title before back button */
+                    width: 100%;
+                }
+
+                .header-left {
+                    order: 1;
+                }
+
+                .header-right {
+                    order: 2;
+                }
+
+                .main-content {
+                    padding: 1rem;
+                }
+
+                .banner-image {
+                    height: 150px;
+                }
+
+                .form-group-inline {
+                    flex-direction: column;
+                }
+
+                .footer {
+                    flex-direction: column;
+                    gap: 1rem;
+                    align-items: stretch;
+                }
+
+                .footer-right {
+                    flex-direction: column;
+                }
+
+                .btn {
+                    width: 100%;
+                    text-align: center;
+                }
+            }
+
+            /* --- NEW STYLES for Session List Page --- */
+            .session-list {
+                display: flex;
+                flex-direction: column;
+                gap: 1rem;
+            }
+
+            .session-card {
+                background-color: var(--bg-secondary);
+                border-radius: 8px;
+                border: 1px solid var(--border-color);
+                padding: 1.5rem;
+                display: grid;
+                grid-template-columns: 3fr 1fr;
+                gap: 1rem;
+                transition:
+                    background-color 0.2s ease,
+                    border-color 0.2s ease;
+                text-decoration: none; /* For <a> tag */
+                color: var(--text-primary);
+            }
+
+            .session-card:hover {
+                background-color: var(--bg-tertiary);
+                border-color: var(--accent-blue);
+            }
+
+            .session-card-main {
+                display: flex;
+                flex-direction: column;
+                gap: 0.75rem;
+            }
+
+            .session-card-main h3 {
+                font-size: 1.25rem;
+                font-weight: 600;
+                color: var(--text-primary);
+                margin: 0;
+            }
+
+            .session-card-main .gm-name {
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+                font-weight: 500;
+            }
+
+            .session-card-meta {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 1.5rem;
+                margin-top: 0.5rem;
+                color: var(--text-secondary);
+                font-size: 0.875rem;
+            }
+
+            .session-card-meta div {
+                display: flex;
+                align-items: center;
+                gap: 0.3rem;
+            }
+
+            .session-card-meta svg {
+                width: 14px;
+                height: 14px;
+                flex-shrink: 0;
+            }
+
+            .session-card-stats {
+                display: flex;
+                flex-direction: column;
+                align-items: flex-end;
+                justify-content: space-between;
+                text-align: right;
+            }
+
+            .session-card-stats .players {
+                font-size: 1.125rem;
+                font-weight: 600;
+            }
+
+            .session-card-stats .difficulty {
+                font-size: 0.875rem;
+                font-weight: 500;
+                padding: 0.25rem 0.5rem;
+                border-radius: 4px;
+                background-color: var(--bg-tertiary);
+                border: 1px solid var(--border-color);
+            }
+
+            .session-card-stats .btn {
+                margin-top: 1rem;
+            }
+
+            /* Responsive for session card */
+            @media (max-width: 640px) {
+                .session-card {
+                    grid-template-columns: 1fr;
+                }
+                .session-card-stats {
+                    flex-direction: row-reverse;
+                    align-items: center;
+                    text-align: left;
+                    gap: 1rem;
+                    margin-top: 1rem;
+                    justify-content: flex-start;
+                }
+                .session-card-stats .btn {
+                    margin-top: 0;
+                    margin-left: auto; /* Push button to the right */
+                    width: auto;
+                }
+            }
+
+            /* --- Global Header --- */
+            .global-header {
+                width: 100%;
+                background-color: var(--bg-secondary);
+                border-bottom: 1px solid var(--border-color);
+                padding: 0 2rem; /* Match body padding */
+                position: sticky;
+                top: 0;
+                z-index: 10;
+            }
+
+            .global-nav-container {
+                width: 100%;
+                max-width: 1100px; /* Match main container width */
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 60px;
+            }
+
+            .logo {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                font-size: 1.125rem;
+                font-weight: 600;
+                color: var(--text-primary);
+                text-decoration: none;
+            }
+
+            .logo svg {
+                flex-shrink: 0;
+            }
+
+            .global-nav {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+            }
+
+            .nav-link {
+                font-size: 0.875rem;
+                font-weight: 500;
+                color: var(--text-secondary);
+                text-decoration: none;
+                padding: 0.5rem 1rem;
+                border-radius: 6px;
+                transition:
+                    background-color 0.2s ease,
+                    color 0.2s ease;
+            }
+
+            .nav-link:hover {
+                background-color: var(--bg-tertiary);
+                color: var(--text-primary);
+            }
+
+            .nav-link.active {
+                color: var(--text-primary);
+                background-color: var(--bg-tertiary);
+            }
+
+            .user-profile {
+                display: flex;
+                align-items: center;
+                gap: 0.75rem;
+                font-size: 0.875rem;
+                font-weight: 500;
+            }
+
+            .user-profile .icon-btn {
+                color: var(--text-secondary);
+            }
+            .user-profile .icon-btn:hover {
+                color: var(--text-primary);
+                background-color: var(--bg-tertiary);
+            }
+
+            /* --- Global Footer --- */
+            .global-footer {
+                width: 100%;
+                background-color: var(--bg-primary);
+                border-top: 1px solid var(--border-color);
+                padding: 2rem; /* Match body padding */
+                margin-top: 2rem;
+            }
+
+            .global-footer-container {
+                width: 100%;
+                max-width: 1100px; /* Match main container width */
+                margin: 0 auto;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                font-size: 0.875rem;
+                color: var(--text-secondary);
+            }
+
+            .footer-links {
+                display: flex;
+                gap: 1.5rem;
+            }
+
+            .footer-links a {
+                color: var(--text-secondary);
+                text-decoration: none;
+                transition: color 0.2s ease;
+            }
+
+            .footer-links a:hover {
+                color: var(--text-primary);
+                text-decoration: underline;
+            }
+
+            /* --- Responsive for Global Nav/Footer --- */
+            @media (max-width: 900px) {
+                .global-nav {
+                    display: none; /* Hide desktop nav */
+                }
+                .logo span {
+                    display: none; /* Hide logo text */
+                }
+                .user-profile span {
+                    display: none; /* Hide username */
+                }
+                .global-nav-container {
+                    justify-content: space-between;
+                }
+            }
+
+            @media (max-width: 640px) {
+                .global-header {
+                    padding: 0 1rem;
+                }
+                .global-footer {
+                    margin-top: 1rem;
+                }
+                .global-footer-container {
+                    flex-direction: column;
+                    gap: 1rem;
+                }
+            }
+
+            /* This new wrapper holds the page content */
+            .page-wrapper {
+                flex: 1; /* Make content grow to push footer down */
+                padding: 2rem; /* Re-apply old body padding here */
+                display: flex;
+                justify-content: center;
+                align-items: flex-start;
+                width: 100%;
+            }
+
+            /* Responsive for page-wrapper */
+            @media (max-width: 640px) {
+                .page-wrapper {
+                    padding: 0.5rem;
+                }
+            }
+
+            /* -------------------------------------------------
+               Session List – Dark Fantasy Enhancements
+               ------------------------------------------------- */
+
+            /* Compact GM info inside card */
+            .gm-info--compact {
+                display: flex;
+                align-items: center;
+                gap: 0.5rem;
+                background: none;
+                padding: 0;
+                font-size: 0.8125rem;
+            }
+            .avatar--sm {
+                width: 28px;
+                height: 28px;
+            }
+
+            /* Difficulty badge variants */
+            .difficulty {
+                text-transform: uppercase;
+                font-weight: 600;
+                letter-spacing: .05em;
+            }
+            .difficulty--easy   { background: rgba(34, 197, 94, .15);  color: var(--accent-green);  border-color: rgba(34, 197, 94, .4); }
+            .difficulty--medium { background: rgba(251, 191, 36, .15); color: #fbbf24;               border-color: rgba(251, 191, 36, .4); }
+            .difficulty--hard   { background: rgba(239, 68, 68, .15);  color: var(--accent-red);    border-color: rgba(239, 68, 68, .4); }
+
+            /* Empty state */
+            .empty-state {
+                text-align: center;
+                padding: 3rem 1.5rem;
+                color: var(--text-secondary);
+            }
+            .empty-state svg {
+                opacity: .4;
+                margin-bottom: .75rem;
+            }
+            .empty-state p {
+                font-size: .9375rem;
+            }
+
+            /* Responsive tweaks for very small screens */
+            @media (max-width: 480px) {
+                .session-card-main h3 { font-size: 1.125rem; }
+                .session-card-meta { gap: .75rem; font-size: .8125rem; }
+                .session-card-stats .players { font-size: 1rem; }
+            }
+
+            /* -------------------------------------------------
+               Table View for Session List – Dark Fantasy Style
+               ------------------------------------------------- */
+
+            /* Filters Section */
+            .filters {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+                gap: 1rem;
+                padding: 1.5rem;
+                background-color: var(--bg-primary);
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            /* Table Container */
+            .table-container {
+                overflow-x: auto;
+                padding: 0 1.5rem 1.5rem;
+            }
+
+            #sessionsTable {
+                width: 100%;
+                border-collapse: separate;
+                border-spacing: 0;
+                font-size: 0.875rem;
+            }
+
+            #sessionsTable thead th {
+                text-align: left;
+                padding: 1rem 0.75rem;
+                border-bottom: 1px solid var(--border-color);
+                position: sticky;
+                top: 0;
+                z-index: 1;
+            }
+
+            #sessionsTable tbody tr {
+                background-color: var(--bg-secondary);
+                transition: background-color 0.2s ease;
+            }
+
+            #sessionsTable tbody tr:hover {
+                background-color: var(--bg-tertiary);
+            }
+
+            #sessionsTable tbody td {
+                padding: 1rem 0.75rem;
+                border-bottom: 1px solid var(--border-color);
+            }
+
+            .session-title {
+                font-weight: 600;
+                color: var(--text-primary);
+                margin-bottom: 0.25rem;
+            }
+
+            .session-desc {
+                color: var(--text-secondary);
+                font-size: 0.8125rem;
+                line-height: 1.4;
+            }
+
+            /* GM Column */
+            .gm-info--compact small {
+                color: var(--text-tertiary);
+                display: block;
+            }
+
+            /* Difficulty */
+            .difficulty {
+                display: inline-block;
+                padding: 0.25rem 0.5rem;
+                border-radius: 4px;
+                font-weight: 500;
+                text-transform: capitalize;
+                border: 1px solid transparent;
+            }
+
+            .difficulty.easy { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); border-color: rgba(34, 197, 94, 0.4); }
+            .difficulty.intermediate { background: rgba(251, 191, 36, 0.15); color: #fbbf24; border-color: rgba(251, 191, 36, 0.4); }
+            .difficulty.hard { background: rgba(239, 68, 68, 0.15); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.4); }
+
+            /* Schedule */
+            #sessionsTable td small {
+                color: var(--text-secondary);
+            }
+
+            /* Players */
+            .players span:first-child {
+                font-weight: 600;
+            }
+
+            /* Status */
+            .status {
+                display: inline-block;
+                padding: 0.25rem 0.5rem;
+                border-radius: 4px;
+                font-weight: 500;
+                text-transform: capitalize;
+            }
+
+            .status.scheduled { background: rgba(59, 130, 246, 0.15); color: var(--accent-blue); border: 1px solid rgba(59, 130, 246, 0.4); }
+            .status.live { background: rgba(34, 197, 94, 0.15); color: var(--accent-green); border: 1px solid rgba(34, 197, 94, 0.4); }
 
 
-.form-group { margin-bottom: 1.5rem; }
-.form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.form-row .form-group { flex: 1; min-width: 200px; }
-.form-label { display: block; margin-bottom: .5rem; font-weight: 600; color: var(--clr-primary); }
-.form-control {
-    width: 100%; padding: .75rem; border: 1px solid var(--clr-secondary);
-    border-radius: var(--radius); background: #FFF; font: inherit;
-    transition: var(--transition);
-}
-.form-control:focus { outline: none; border-color: var(--clr-accent); box-shadow: 0 0 0 3px rgba(183,110,121,.2); }
-.form-error { color: var(--clr-danger); font-size: .875rem; margin-top: .25rem; }
-.radio-group { display: flex; flex-direction: column; gap: .75rem; }
-.radio-label { display: flex; align-items: center; cursor: pointer; }
-.radio-label input { margin-right: .5rem; }
+            .btn-small {
+                padding: 0.375rem 0.75rem;
+                font-size: 0.8125rem;
+            }
+
+            .btn-join {
+                background-color: var(--accent-green);
+                color: white;
+            }
+
+            .btn-join:hover {
+                background-color: var(--accent-green-hover);
+            }
+
+            .btn-spectate {
+                background-color: var(--bg-tertiary);
+                color: var(--text-primary);
+            }
+
+            .btn-spectate:hover {
+                background-color: var(--border-color);
+            }
+
+            .btn-view {
+                background: none;
+                border: 1px solid var(--border-color);
+                color: var(--text-secondary);
+            }
+
+            .btn-view:hover {
+                background-color: var(--bg-tertiary);
+                color: var(--text-primary);
+            }
+
+            /* Responsive Table */
+            @media (max-width: 900px) {
+                .filters {
+                    grid-template-columns: repeat(2, 1fr);
+                }
+
+                #sessionsTable thead {
+                    display: none;
+                }
+
+                #sessionsTable tbody tr {
+                    display: block;
+                    margin-bottom: 1rem;
+                    border: 1px solid var(--border-color);
+                    border-radius: 6px;
+                    padding: 1rem;
+                }
+
+                #sessionsTable tbody td {
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: center;
+                    border-bottom: none;
+                    padding: 0.5rem 0;
+                }
+
+                #sessionsTable tbody td:before {
+                    content: attr(data-label);
+                    font-weight: 500;
+                    color: var(--text-secondary);
+                    min-width: 100px;
+                }
+
+                #sessionsTable tbody td[data-label="Session"] {
+                    flex-direction: column;
+                    align-items: flex-start;
+                }
+
+                #sessionsTable tbody td[data-label="Actions"] {
+                    justify-content: flex-start;
+                }
+
+                .session-row td:first-child:before {
+                    content: none;
+                }
+            }
+
+            /* Assign data-label to td for mobile */
+            #sessionsTable tbody td:nth-child(1) { data-label: "Session"; }
+            #sessionsTable tbody td:nth-child(2) { data-label: "GM"; }
+            #sessionsTable tbody td:nth-child(3) { data-label: "Difficulty"; }
+            #sessionsTable tbody td:nth-child(4) { data-label: "Schedule"; }
+            #sessionsTable tbody td:nth-child(5) { data-label: "Duration"; }
+            #sessionsTable tbody td:nth-child(6) { data-label: "Players"; }
+            #sessionsTable tbody td:nth-child(7) { data-label: "Status"; }
+            #sessionsTable tbody td:nth-child(8) { data-label: "Actions"; }

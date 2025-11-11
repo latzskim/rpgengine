@@ -1,31 +1,155 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org">
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>RPG Sessions</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>RPG Engine - Available Sessions</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com"/>
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+    <link rel="stylesheet" href="css/style.css"/>
 </head>
+<body>
+<th:block th:replace="~{fragments/header :: header}"></th:block>
 
-<body class="page-wrapper">
-<div class="page-wrapper__inner">
-    <header th:replace="~{fragments/header :: header}"></header>
+<main class="page-wrapper">
+    <div class="container">
+        <header class="header">
+            <div class="header-left">
+                <h1>Available Sessions</h1>
+            </div>
+            <div class="header-right">
+                <a th:href="@{/sessions/create}" class="btn btn-primary">Create Session</a>
+            </div>
+        </header>
 
-    <main>
-        <section class="hero">
-            <h1>Welcome to Role-Play Games World</h1>
-            <p>Schedule, join and run epic tabletop adventures.</p>
+        <section class="filters">
+            <div class="form-group">
+                <label for="filterDifficulty">Difficulty</label>
+                <select id="filterDifficulty" class="select">
+                    <option value="">All Levels</option>
+                    <option value="easy">Easy</option>
+                    <option value="intermediate">Intermediate</option>
+                    <option value="hard">Hard</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="filterMinPlayers">Min Players</label>
+                <input type="number" id="filterMinPlayers" class="input" min="1" placeholder="e.g. 3"/>
+            </div>
+            <div class="form-group">
+                <label for="filterMaxPlayers">Max Players</label>
+                <input type="number" id="filterMaxPlayers" class="input" min="1" placeholder="e.g. 6"/>
+            </div>
+            <div class="form-group">
+                <label for="filterDuration">Duration</label>
+                <select id="filterDuration" class="select">
+                    <option value="">Any Duration</option>
+                    <option value="0-60">&lt; 1 hour</option>
+                    <option value="60-120">1h - 2h</option>
+                    <option value="120-300">2h - 5h</option>
+                    <option value="300+">&gt; 5 hours</option>
+                </select>
+            </div>
         </section>
 
-        <section th:replace="~{sessions/sessionsList :: sessionsList}"></section>
-    </main>
+        <div class="table-container">
+            <table id="sessionsTable">
+                <thead>
+                <tr>
+                    <th>Session</th>
+                    <th>GM</th>
+                    <th>Difficulty</th>
+                    <th>Schedule</th>
+                    <th>Duration</th>
+                    <th>Players</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+                </thead>
+                <tbody id="sessionsBody">
+                <!-- Example Row (Thymeleaf loop in production) -->
+                <tr class="session-row" th:each="ses : ${sessions}" data-difficulty="${ses.difficulty.toLowerCase()}" data-min="${ses.minPlayers}" data-max="${ses.maxPlayers}" data-duration="${ses.durationMinutes}">
+                    <td>
+                        <div class="session-title" th:text="${ses.title}">The Whispering Labyrinth</div>
+                        <div class="session-desc" th:text="${#strings.abbreviate(ses.description, 80)}">Ancient ruins, cursed relics, sanity-draining horrors...</div>
+                    </td>
+                    <td class="gm-info">
+                        <div class="gm-info-inline">
+                            <img th:src="${ses.ownerAvatarUrl} ?: @{images/gm_avatar.png}"
+                                 alt="GM Avatar"
+                                 class="avatar avatar--sm">
+                            <span th:text="${ses.ownerDisplayName}">Player#</span>
+                        </div>
+                    </td>
+                    <td>
+                        <span class="difficulty" th:classappend="${ses.difficulty.toLowerCase()}" th:text="${ses.difficulty}">Hard</span>
+                    </td>
+                    <td>
+                        <span th:text="${#temporals.format(ses.startDate, 'MMM d, yyyy')}">Oct 26, 2025</span><br/>
+                        <small th:text="${#temporals.format(ses.startDate, 'h:mm a z')}">7:00 PM UTC+1</small>
+                    </td>
+                    <td th:text="${ses.durationInMinutes div 60} + ' hours'">4 hours</td>
+                    <td class="players">
+                        <span th:text="${ses.approvedPlayers} + '/' + ${ses.maxPlayers}">3/6</span>
+                        <span th:if="${ses.pendingInvites > 0}" th:text="'+ ' + ${ses.pendingInvites} + ' pending'"> + 2 pending</span>
+                    </td>
+                    <td>
+                        <span class="status" th:classappend="${ses.status.toLowerCase()}" th:text="${ses.status}">Scheduled</span>
+                    </td>
+                    <td class="actions">
+                        <a th:href="@{|/sessions/${ses.id}|}" class="btn btn-small btn-secondary btn-view">View</a>
+                    </td>
+                </tr>
+                <!-- Add more rows as needed -->
+                </tbody>
+            </table>
+            <div th:if="${#lists.isEmpty(sessions)}" class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+                <p>No sessions available. Create the first one!</p>
+            </div>
+        </div>
+    </div>
+</main>
 
-    <div class="page-push"></div>
-</div>
+<th:block th:replace="~{fragments/footer :: footer}"></th:block>
 
-<footer th:replace="~{fragments/footer :: footer}" class="site-footer"></footer>
+<script>
+    // Live Filtering (unchanged)
+    const filters = {
+        difficulty: document.getElementById("filterDifficulty"),
+        minPlayers: document.getElementById("filterMinPlayers"),
+        maxPlayers: document.getElementById("filterMaxPlayers"),
+        duration: document.getElementById("filterDuration"),
+    };
+
+    function filterSessions() {
+        const rows = document.querySelectorAll(".session-row");
+        rows.forEach((row) => {
+            const diff = row.dataset.difficulty;
+            const min = parseInt(row.dataset.min);
+            const max = parseInt(row.dataset.max);
+            const dur = parseInt(row.dataset.duration);
+
+            const showDiff = !filters.difficulty.value || diff === filters.difficulty.value;
+            const showMin = !filters.minPlayers.value || min >= parseInt(filters.minPlayers.value);
+            const showMax = !filters.maxPlayers.value || max <= parseInt(filters.maxPlayers.value);
+
+            let showDur = true;
+            if (filters.duration.value) {
+                const [minDur, maxDur] = filters.duration.value.split("-").map(x => x === "+" ? Infinity : parseInt(x));
+                showDur = dur > (minDur || 0) && (!maxDur || dur <= maxDur);
+            }
+
+            row.style.display = showDiff && showMin && showMax && showDur ? "" : "none";
+        });
+    }
+
+    Object.values(filters).forEach(el => el.addEventListener("change", filterSessions));
+    Object.values(filters).forEach(el => el.addEventListener("input", filterSessions));
+</script>
 </body>
 </html>

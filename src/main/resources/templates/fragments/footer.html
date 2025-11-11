@@ -1,13 +1,20 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 
-<th:block th:fragment="footer">
-    <footer class="site-footer">
-        <div class="container">
-            <p>All rights reserved. Created by
-                <a href="https://github.com/latzskim" target="_blank">latzskim</a>
-            </p>
+<body>
+<footer class="global-footer">
+    <div class="global-footer-container">
+        <div class="footer-links">
+            <a href="#">About</a>
+            <a href="#">Help Center</a>
+            <a href="#">Terms of Service</a>
+            <a href="#">Privacy Policy</a>
         </div>
-    </footer>
-</th:block>
+        <span class="copyright"
+        >&copy; 2025 TTRPG Sessions. All rights reserved.</span
+        >
+    </div>
+</footer>
+</body>
 </html>
