@@ -76,6 +76,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/access-denied", "/error").permitAll()
                         .requestMatchers("/css/**", "/favicon.ico", "/favicon.png").permitAll()
+                        .requestMatchers("/images/**").permitAll()
                         .requestMatchers("/login", "/register", "/activate").permitAll()
                         .requestMatchers("/users", "/users/**", "/user/**").authenticated()
                         .requestMatchers("/sessions", "/sessions/**", "/session/**").authenticated()

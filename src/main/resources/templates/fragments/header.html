@@ -1,14 +1,25 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-
-<th:block th:fragment="header">
-    <header class="site-header">
-        <div class="container header__inner">
-            <a href="/" class="logo">RPG Engine</a>
-            <nav class="nav">
-                <a th:href="@{/sessions/create}" class="btn btn--primary">+ New Session</a>
-            </nav>
-        </div>
-    </header>
-</th:block>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<nav class="navbar" th:fragment="header">
+    <div class="logo">
+        <i class="fa-solid fa-dice-d20"></i> Mythos
+    </div>
+    <div class="nav-links">
+        <a href="#" style="color: var(--primary);">Find Game</a>
+        <a href="#">My Campaigns</a>
+        <a href="#">Compendium</a>
+        <a href="#">Community</a>
+    </div>
+    <div th:if="${user != null}">
+        <!-- Logged in view -->
+        <span th:text="${user.username}" style="margin-right:1rem;">Player</span>
+        <button class="btn-primary">Log Out</button>
+    </div>
+    <div th:unless="${user != null}">
+        <!-- Anonymous view -->
+        <button class="btn-primary">Sign In</button>
+    </div>
+</nav>
+</body>
 </html>

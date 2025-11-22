@@ -2,12 +2,14 @@ package com.example.rpgengine.session.application;
 
 import com.example.rpgengine.session.domain.Session;
 import com.example.rpgengine.session.domain.port.in.query.SessionListViewModel;
+import com.example.rpgengine.session.domain.port.in.query.SessionViewModel;
 import com.example.rpgengine.session.domain.port.in.query.SortBy;
 import com.example.rpgengine.session.domain.port.out.read.SessionReadModel;
 import com.example.rpgengine.session.domain.port.out.read.SessionReadModelRepositoryPort;
 import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
 import com.example.rpgengine.session.domain.port.in.query.SessionsEligibleToPlayQuery;
 import com.example.rpgengine.session.domain.port.out.read.SessionSpecifications;
+import com.example.rpgengine.session.domain.valueobject.SessionId;
 import com.example.rpgengine.session.domain.valueobject.SessionStatus;
 import com.example.rpgengine.session.domain.valueobject.UserId;
 import org.jetbrains.annotations.NotNull;
@@ -30,7 +32,9 @@ class SessionViewQueryService implements SessionViewQueryServicePort {
 
     @Override
     public List<SessionListViewModel> getSessionsByUserId(UserId userId) {
-        return List.of();
+        return sessionReadModelRepositoryPort.findByOwnerId(userId).stream()
+                .map(SessionListViewModel::from)
+                .toList();
     }
 
     @Override
@@ -55,6 +59,11 @@ class SessionViewQueryService implements SessionViewQueryServicePort {
         return sessionReadModelRepositoryPort.findAll(q, p).stream()
                 .map(SessionListViewModel::from)
                 .toList();
+    }
+
+    @Override
+    public SessionViewModel getSessionByUserId(SessionId sessionId, UserId userId) {
+        return null;
     }
 
     private static PageRequest buildPage(int page, int elements, SortBy sortBy) {

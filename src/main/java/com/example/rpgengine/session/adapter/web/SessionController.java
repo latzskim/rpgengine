@@ -2,16 +2,14 @@ package com.example.rpgengine.session.adapter.web;
 
 import com.example.rpgengine.session.domain.exception.SessionValidationException;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
+import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
 import com.example.rpgengine.session.domain.port.out.UserPort;
+import com.example.rpgengine.session.domain.valueobject.SessionId;
 import com.example.rpgengine.session.domain.valueobject.SessionUser;
-import org.apache.logging.log4j.LogManager;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.validation.BindingResult;
-import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.security.Principal;
 import java.util.Optional;
@@ -20,10 +18,16 @@ import java.util.Optional;
 @RequestMapping("/sessions")
 class SessionController {
     private final SessionCommandServicePort sessionCommandServicePort;
+    private final SessionViewQueryServicePort sessionViewQueryServicePort;
     private final UserPort userPort;
 
-    SessionController(SessionCommandServicePort sessionCommandServicePort, UserPort userPort) {
+    SessionController(
+            SessionCommandServicePort sessionCommandServicePort,
+            SessionViewQueryServicePort sessionViewQueryServicePort,
+            UserPort userPort
+    ) {
         this.sessionCommandServicePort = sessionCommandServicePort;
+        this.sessionViewQueryServicePort = sessionViewQueryServicePort;
         this.userPort = userPort;
     }
 
@@ -76,8 +80,14 @@ class SessionController {
     }
 
     @GetMapping("/{id}")
-    String sessionDetail(@PathVariable String id, Model model) {
-        return "sessions/sessionDetail";
+    String sessionDetail(@PathVariable String id, Model model, Principal principal) {
+        return getSessionUser(principal).map(sessionUser -> {
+            var sessionReadModel = sessionViewQueryServicePort.getSessionsByUserId(
+                    sessionUser.id()
+            ).stream().filter(session -> session.id().equals(id)).findFirst().get();
+            model.addAttribute("ses", sessionReadModel);
+            return "sessions/detail";
+        }).orElse("access-denied");
     }
 
 

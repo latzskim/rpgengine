@@ -1,31 +1,106 @@
 <!DOCTYPE html>
-<html lang="en"
-      xmlns:th="http://www.thymeleaf.org">
-
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1"/>
-    <title>RPG Sessions</title>
-    <link rel="stylesheet" th:href="@{/css/style.css}"/>
-    <link href="https://fonts.googleapis.com/css2?family=Crimson+Text&family=Uncial+Antiqua&display=swap" rel="stylesheet">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mythos - RPG Session Finder</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+    <style>
+        /* Fix for anchor tag wrapping card to preserve layout */
+        a.card-link {
+            text-decoration: none;
+            color: inherit;
+            display: block;
+        }
+    </style>
 </head>
+<body>
 
-<body class="page-wrapper">
-<div class="page-wrapper__inner">
-    <header th:replace="~{fragments/header :: header}"></header>
+<div th:replace="~{fragments/header :: header}"></div>
 
-    <main>
-        <section class="hero">
-            <h1>Welcome to Role-Play Games World</h1>
-            <p>Schedule, join and run epic tabletop adventures.</p>
-        </section>
-
-        <section th:replace="~{sessions/sessionsList :: sessionsList}"></section>
-    </main>
-
-    <div class="page-push"></div>
+<div class="hero">
+    <h1>Begin Your Saga</h1>
+    <p>Join an active party or assemble your own crew. Thousands of worlds await.</p>
 </div>
 
-<footer th:replace="~{fragments/footer :: footer}" class="site-footer"></footer>
+<div class="container">
+
+    <div class="filters">
+        <div class="filter-tag active">All Sessions</div>
+        <div class="filter-tag">Starting Soon</div>
+        <div class="filter-tag">In Progress</div>
+    </div>
+
+    <div class="session-grid">
+
+        <!-- Loop over sessions -->
+        <th:block th:each="ses : ${sessions}">
+            <!-- The whole card is a link to details -->
+            <a th:href="@{/sessions/{id}(id=${ses.id})}" class="card-link">
+                <div class="card">
+
+                    <!-- Background Image -->
+                    <div class="card-image-container"
+                         th:style="'background-image: url(https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=600&auto=format&fit=crop)'">
+
+                        <div th:if="${ses.status == 'IN_PROGRESS'}" class="status-badge status-live">
+                            <i class="fa-solid fa-circle fa-2xs"></i> Live Now
+                        </div>
+                        <div th:unless="${ses.status == 'IN_PROGRESS'}" class="status-badge status-scheduled" th:text="${ses.status}">
+                            Scheduled
+                        </div>
+
+                        <div class="card-overlay"></div>
+                    </div>
+
+                    <div class="card-body">
+                        <h3 class="card-title" th:text="${ses.title}">Session Title</h3>
+                        <p class="card-motd" th:text="${ses.description}">Description...</p>
+
+                        <div class="card-stats">
+                            <div class="stat-item">
+                                <i class="fa-regular fa-calendar"></i>
+                                <span th:text="${#temporals.format(ses.startDate, 'MMM dd, h:mm a')}">Date</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fa-solid fa-shield-halved"></i>
+                                <span th:classappend="'difficulty-' + ${#strings.toLowerCase(ses.difficulty)}"
+                                      th:text="${ses.difficulty}">Medium</span>
+                            </div>
+                            <div class="stat-item">
+                                <i class="fa-solid fa-users"></i>
+                                <span th:text="|${ses.approvedPlayers}/${ses.maxPlayers}|">0/0</span>
+                            </div>
+                        </div>
+
+                        <div class="gm-section">
+                            <div class="gm-info">
+                                <img th:src="${ses.ownerAvatarUrl} ?: @{images/gm_avatar.png}" alt="GM" class="gm-avatar">
+                                <div>
+                                    <span class="gm-label">Gamemaster</span>
+                                    <span class="gm-name" th:text="${ses.ownerDisplayName}">GM Name</span>
+                                </div>
+                            </div>
+                            <!-- Action Button (Visual only inside the anchor) -->
+                            <span class="btn-join">View Details</span>
+                        </div>
+                    </div>
+                </div>
+            </a>
+        </th:block>
+
+        <div th:if="${sessions.empty}" style="grid-column: 1/-1; text-align: center; padding: 4rem;">
+            <h3>No sessions found</h3>
+        </div>
+
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
 </body>
 </html>

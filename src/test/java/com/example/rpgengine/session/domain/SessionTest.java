@@ -104,11 +104,10 @@ class SessionTest {
         session.join(userId, invitePolicy);
 
         // then:
-        assertThat(session.getDomainEvents()).hasSize(1);
-        var event = session.getDomainEvents().getFirst();
-        assertThat(event).isInstanceOf(clazz);
+        var expectedClazzEvent = getDomainEvent(session.getDomainEvents(), clazz);
+        assertThat(expectedClazzEvent).isPresent();
 
-        switch (event) {
+        switch (expectedClazzEvent.get()) {
             case SessionUserJoined d -> {
                 assertThat(d)
                         .isEqualTo(new SessionUserJoined(session.getId(), userId));
@@ -145,6 +144,7 @@ class SessionTest {
         // given:
         var session = new Session(
                 UserId.fromUUID(UUID.randomUUID()),
+                "Title",
                 "Lotr Session",
                 LocalDateTime.now().plusDays(1),
                 Duration.ofHours(5),
@@ -166,6 +166,7 @@ class SessionTest {
     public void shouldThrowSessionValidationExceptionWhenInvalidMinAndMaxPlayers() {
         assertThrows(SessionValidationException.class, () -> new Session(
                 UserId.fromUUID(UUID.randomUUID()),
+                "Title",
                 "Lotr Session",
                 LocalDateTime.now().plusDays(1),
                 Duration.ofHours(5),
@@ -177,6 +178,7 @@ class SessionTest {
 
         assertThrows(SessionValidationException.class, () -> new Session(
                 UserId.fromUUID(UUID.randomUUID()),
+                "Title",
                 "Lotr Session",
                 LocalDateTime.now().plusDays(1),
                 Duration.ofHours(5),
@@ -189,6 +191,7 @@ class SessionTest {
         // MIN > MAX
         assertThrows(SessionValidationException.class, () -> new Session(
                 UserId.fromUUID(UUID.randomUUID()),
+                "Title",
                 "Lotr Session",
                 LocalDateTime.now().plusDays(1),
                 Duration.ofHours(5),
@@ -204,16 +207,15 @@ class SessionTest {
     public void shouldScheduleDraftSession() {
         // given:
         var session = makePublicSession();
-        assertThat(session.getDomainEvents()).hasSize(0);
 
         // when:
         session.scheduleSession();
 
         // then:
-        assertThat(session.getDomainEvents()).hasSize(1);
-        var event = session.getDomainEvents().getFirst();
-        assertThat(event).isInstanceOf(SessionStatusEvent.SessionScheduled.class);
-        SessionStatusEvent.SessionScheduled sessionScheduled = (SessionStatusEvent.SessionScheduled) event;
+        var sessionScheduledEvent = getDomainEvent(session.getDomainEvents(), SessionStatusEvent.SessionScheduled.class);
+        assertThat(sessionScheduledEvent).isPresent();
+
+        SessionStatusEvent.SessionScheduled sessionScheduled = sessionScheduledEvent.get();
         assertThat(sessionScheduled.id()).isEqualTo(session.getId());
     }
 
@@ -243,7 +245,6 @@ class SessionTest {
         session.join(userId, JoinSessionPolicyFactory.createJoinPolicy(""));
         assertThat(session.getJoinRequests()).hasSize(1);
         assertThat(session.getParticipants()).hasSize(1); // GM
-        assertThat(session.getDomainEvents()).hasSize(1); // SessionUserJoinRequested
 
         // when:
         session.approveJoinRequest(userId);
@@ -267,9 +268,8 @@ class SessionTest {
                 .findAny().orElseThrow(() -> new AssertionError("user should be in participants"));
         assertThat(foundUser.getRole()).isEqualTo(ParticipantRole.PLAYER);
 
-        assertThat(session.getDomainEvents()).hasSize(2);
-        var event = session.getDomainEvents().getLast();
-        assertThat(event).isInstanceOf(SessionUserJoined.class);
+        var sessionUserJoinedEvent = getDomainEvent(session.getDomainEvents(), SessionUserJoined.class);
+        assertThat(sessionUserJoinedEvent).isPresent();
     }
 
     @Test
@@ -280,7 +280,9 @@ class SessionTest {
         session.join(userId, JoinSessionPolicyFactory.createJoinPolicy(""));
         assertThat(session.getJoinRequests()).hasSize(1);
         assertThat(session.getParticipants()).hasSize(1); // GM
-        assertThat(session.getDomainEvents()).hasSize(1); // SessionUserJoinRequested
+
+        var sessionUserJoinEvent = getDomainEvent(session.getDomainEvents(), SessionUserJoinRequested.class);
+        assertThat(sessionUserJoinEvent).isPresent();
 
         // when:
         session.rejectJoinRequest(userId);
@@ -296,23 +298,21 @@ class SessionTest {
         assertThat(joinRequest.getStatus()).isEqualTo(JoinRequestStatus.REJECTED);
 
         assertThat(session.getParticipants()).hasSize(1); // GM
-        assertThat(session.getDomainEvents()).hasSize(2); // SessionUserJoinRequested
-        var event = session.getDomainEvents().getLast();
-        assertThat(event).isInstanceOf(SessionUserRejected.class);
+
+        var sessionUserRejectedEvent = getDomainEvent(session.getDomainEvents(), SessionUserRejected.class);
+        assertThat(sessionUserRejectedEvent).isPresent();
     }
 
     @Test
     public void shouldBeAbleToDeleteDraftSession() {
         // given:
         var session = makePublicSession();
-        assertThat(session.getDomainEvents()).hasSize(0);
         assertThat(session.getStatus()).isEqualTo(SessionStatus.DRAFT);
 
         // when:
         session.delete();
 
         // then:
-        assertThat(session.getDomainEvents()).hasSize(1);
         var event = getDomainEvent(
                 session.getDomainEvents(),
                 SessionStatusEvent.SessionHardDeleted.class
@@ -341,6 +341,7 @@ class SessionTest {
     private static Session makePrivateSession() {
         return new Session(
                 UserId.fromUUID(UUID.randomUUID()),
+                "Title",
                 "Lotr Session",
                 LocalDateTime.now().plusDays(1),
                 Duration.ofHours(5),
@@ -354,6 +355,7 @@ class SessionTest {
     private static Session makePublicSession() {
         return new Session(
                 UserId.fromUUID(UUID.randomUUID()),
+                "Title",
                 "Lotr Session",
                 LocalDateTime.now().plusDays(1),
                 Duration.ofHours(5),

@@ -1,274 +1,593 @@
-/* -------------------------------------------------
-   1. Global variables & resets – Medieval RPG Theme
-   ------------------------------------------------- */
-html {
-    font-family: 'Crimson Text', Georgia, serif;   /* GLOBAL FONT */
-    font-size: 16px;
-}
-
 :root {
-    /* Earthy, parchment base */
-    --clr-bg:          #FDF6E3;        /* Warm parchment/off-white */
-    --clr-surface:     #FFF8E7;        /* Slightly aged paper */
-
-    /* Dark wood & stone accents */
-    --clr-primary:     #3E2723;        /* Deep walnut brown (headers, text) */
-    --clr-secondary:   #5D4037;        /* Burnt umber (borders, shadows) */
-
-    /* Medieval metals & gems */
-    --clr-accent:      #B76E79;        /* Burnished copper (buttons, links) */
-    --clr-success:     #2E7D32;        /* Deep forest green (open sessions) */
-    --clr-warning:     #EF6C00;        /* Amber glow (full sessions) */
-    --clr-danger:      #D32F2F;        /* Rust-red blood (closed) */
-
-    /* Text & muted tones */
-    --clr-text:        #2C1810;        /* Rich ink black-brown */
-    --clr-muted:       #6D4C41;        /* Faded sepia */
-
-    /* Layout helpers */
-    --radius:          .25rem;         /* Subtle, worn edges */
-    --shadow-sm:       0 1px 3px rgba(62, 39, 35, .1);  /* Soft paper shadow */
-    --shadow-md:       0 4px 12px rgba(62, 39, 35, .15); /* Deeper, like a tome */
-    --transition:      all .3s ease;   /* Gentle, like turning pages */
+    --bg-dark: #0b0c15;
+    --bg-card: #151725;
+    --bg-card-hover: #1e2130;
+    --primary: #d4af37; /* Gold */
+    --primary-glow: rgba(212, 175, 55, 0.3);
+    --accent-red: #ff4b4b;
+    --accent-green: #4bff88;
+    --accent-blue: #4b9eff;
+    --text-main: #e0e0e0;
+    --text-muted: #8a8b9c;
+    --font-header: 'Cinzel', serif;
+    --font-body: 'Lato', sans-serif;
 }
 
-/* Dark mode (candlelit tavern – toggle with .dark on <html>) */
-html.dark {
-    --clr-bg:          #1A0F0B;        /* Pitch-black night */
-    --clr-surface:     #2C1810;        /* Flickering torchlight */
-    --clr-text:        #E8D5A3;        /* Glowing ember text */
-    --clr-muted:       #A1887F;        /* Smoky haze */
-}
-
-/* -------------------------------------------------
-   2. Base typography & layout
-   ------------------------------------------------- */
-*,
-*::before,
-*::after { box-sizing: border-box; }
-
-html {
-    font-family: 'Crimson Text', 'Georgia', serif;  /* Serif for medieval script feel */
-    font-size: 16px;
-}
-body {
+* {
     margin: 0;
-    background: var(--clr-bg);
-    color: var(--clr-text);
-    line-height: 1.6;
+    padding: 0;
+    box-sizing: border-box;
 }
 
+body {
+    background-color: var(--bg-dark);
+    background-image:
+        radial-gradient(circle at 15% 50%, rgba(76, 29, 149, 0.15) 0%, transparent 25%),
+        radial-gradient(circle at 85% 30%, rgba(212, 175, 55, 0.05) 0%, transparent 25%);
+    color: var(--text-main);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+/* Navigation */
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem 2rem;
+    background: rgba(11, 12, 21, 0.9);
+    backdrop-filter: blur(10px);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+}
+
+.logo {
+    font-family: var(--font-header);
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.nav-links {
+    display: flex;
+    gap: 2rem;
+}
+
+.nav-links a {
+    text-decoration: none;
+    color: var(--text-main);
+    font-weight: 700;
+    font-size: 0.9rem;
+    transition: color 0.3s;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.nav-links a:hover {
+    color: var(--primary);
+}
+
+.btn-primary {
+    background: transparent;
+    border: 1px solid var(--primary);
+    color: var(--primary);
+    padding: 0.5rem 1.5rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-family: var(--font-body);
+    font-weight: 700;
+    transition: all 0.3s ease;
+    text-transform: uppercase;
+    font-size: 0.8rem;
+}
+
+.btn-primary:hover {
+    background: var(--primary);
+    color: var(--bg-dark);
+    box-shadow: 0 0 15px var(--primary-glow);
+}
+
+/* Hero Section */
+.hero {
+    text-align: center;
+    padding: 6rem 1rem 4rem;
+}
+
+.hero h1 {
+    font-family: var(--font-header);
+    font-size: 3.5rem;
+    margin-bottom: 1rem;
+    background: linear-gradient(to right, #fff, #ccc);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+.hero p {
+    color: var(--text-muted);
+    font-size: 1.2rem;
+    max-width: 600px;
+    margin: 0 auto;
+}
+
+/* Main Content Area */
 .container {
-    width: min(100%, 1200px);
-    margin-inline: auto;
-    padding-inline: 1rem;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
+    flex: 1; /* Pushes footer down */
+    width: 100%;
 }
 
-/* Subtle parchment texture overlay (optional, for immersion) */
-body::before {
-    content: '';
-    position: fixed;
-    top: 0; left: 0; right: 0; bottom: 0;
-    background:
-        radial-gradient(circle at 20% 80%, rgba(255,248,231,.05) 0%, transparent 50%),
-        radial-gradient(circle at 80% 20%, rgba(253,246,227,.03) 0%, transparent 50%);
-    pointer-events: none;
-    z-index: -1;
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    overflow-x: auto;
+    padding-bottom: 1rem;
 }
 
-/* -------------------------------------------------
-   3. Header – Wrought-iron banner
-   ------------------------------------------------- */
-.site-header {
-    background: linear-gradient(to bottom, var(--clr-secondary), var(--clr-primary));  /* Wood grain fade */
-    color: #F5F5DC;  /* Ivory text */
+.filter-tag {
+    background: var(--bg-card);
+    padding: 0.5rem 1.2rem;
+    border-radius: 20px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: all 0.3s;
+    white-space: nowrap;
+}
+
+.filter-tag.active, .filter-tag:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+
+/* Grid Layout */
+.session-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+    gap: 2rem;
+    margin-bottom: 4rem;
+}
+
+/* Session Card */
+.card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    overflow: hidden;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    position: relative;
+    display: flex;
+    flex-direction: column;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    border-color: rgba(212, 175, 55, 0.2);
+}
+
+.card-image-container {
+    height: 160px;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+    background-color: #2a2d3e; /* Fallback */
+}
+
+.card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, var(--bg-card), transparent);
+}
+
+/* Status Badges */
+.status-badge {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    padding: 0.25rem 0.75rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    z-index: 2;
+}
+
+.status-live {
+    background: rgba(255, 75, 75, 0.2);
+    color: var(--accent-red);
+    border: 1px solid var(--accent-red);
+    box-shadow: 0 0 10px rgba(255, 75, 75, 0.2);
+    animation: pulse 2s infinite;
+}
+
+.status-scheduled {
+    background: rgba(75, 255, 136, 0.1);
+    color: var(--accent-green);
+    border: 1px solid var(--accent-green);
+}
+
+@keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0.4); }
+    70% { box-shadow: 0 0 0 6px rgba(255, 75, 75, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 75, 75, 0); }
+}
+
+/* Card Body */
+.card-body {
+    padding: 1.5rem;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.card-title {
+    font-family: var(--font-header);
+    font-size: 1.4rem;
+    color: #fff;
+    margin-bottom: 0.5rem;
+    line-height: 1.2;
+}
+
+.card-motd {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    line-height: 1.5;
+    margin-bottom: 1.5rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+/* Stats Grid */
+.card-stats {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+    border-top: 1px solid rgba(255,255,255,0.05);
+    border-bottom: 1px solid rgba(255,255,255,0.05);
     padding: 1rem 0;
-    box-shadow: var(--shadow-md);
-    border-bottom: 3px solid var(--clr-accent);  /* Copper trim */
 }
-.header__inner {
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.85rem;
+    color: var(--text-main);
+}
+
+.stat-item i {
+    color: var(--primary);
+    width: 16px;
+    text-align: center;
+}
+
+.difficulty-easy { color: var(--accent-green); }
+.difficulty-medium { color: var(--primary); }
+.difficulty-hard { color: var(--accent-red); }
+
+/* Gamemaster Section */
+.gm-section {
     display: flex;
     align-items: center;
     justify-content: space-between;
+    margin-top: auto;
 }
-.logo {
+
+.gm-info {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.gm-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--primary);
+}
+
+.gm-name {
+    font-size: 0.85rem;
+    color: var(--text-main);
     font-weight: 700;
-    font-size: 1.75rem;
-    color: #F5F5DC;
-    text-decoration: none;
-    text-shadow: 1px 1px 2px rgba(0,0,0,.3);  /* Engraved look */
 }
-.nav a { color: #F5F5DC; text-decoration: none; }
 
-/* -------------------------------------------------
-   4. Buttons – Forged metal seals
-   ------------------------------------------------- */
-.btn {
-    display: inline-block;
-    padding: .75rem 1.5rem;
-    border-radius: var(--radius);
-    font-weight: 600;
-    text-align: center;
-    text-decoration: none;
-    transition: var(--transition);
+.gm-label {
+    font-size: 0.7rem;
+    color: var(--text-muted);
+    display: block;
+}
+
+.btn-join {
+    background: var(--bg-card-hover);
+    color: var(--text-main);
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
     cursor: pointer;
-    border: 2px solid transparent;  /* For hover glow */
-    background: var(--clr-accent);
-    color: #FFF8E7;  /* Parchment text on metal */
-    box-shadow: var(--shadow-sm);
-}
-.btn--primary:hover {
-    background: #A0522D;  /* Darker copper */
-    transform: translateY(-1px);  /* Subtle lift */
-    box-shadow: var(--shadow-md);
+    font-size: 0.8rem;
+    font-weight: 700;
+    transition: all 0.2s;
 }
 
-/* -------------------------------------------------
-   5. Hero section – Illuminated manuscript
-   ------------------------------------------------- */
-.hero {
+.btn-join:hover {
+    background: var(--text-main);
+    color: var(--bg-dark);
+}
+
+/* Footer */
+.footer {
+    border-top: 1px solid rgba(255,255,255,0.05);
+    background: rgba(11, 12, 21, 0.95);
+    padding: 2rem;
     text-align: center;
-    padding: 3rem 1rem;
-    background: linear-gradient(135deg, #8B4513 0%, #A0522D 50%, #CD853F 100%);  /* Autumn forest path */
-    color: #F5F5DC;
+    font-size: 0.8rem;
+    color: var(--text-muted);
+    margin-top: auto;
+}
+
+.footer a {
+    color: var(--text-muted);
+    text-decoration: none;
+    margin: 0 0.5rem;
+    transition: color 0.3s;
+}
+
+.footer a:hover {
+    color: var(--primary);
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    .hero h1 { font-size: 2.5rem; }
+    .navbar { padding: 1rem; }
+    .nav-links { display: none; } /* Simplified for mobile */
+    .logo { font-size: 1.5rem; }
+}
+
+/* ... (Keep all previous CSS) ... */
+
+/* --- Session Details Page Styles --- */
+
+.details-hero {
+    position: relative;
+    height: 400px;
+    display: flex;
+    align-items: flex-end;
+    padding-bottom: 4rem;
     margin-bottom: 2rem;
-    border-bottom: 4px solid var(--clr-secondary);  /* Leather binding */
-    text-shadow: 1px 1px 2px rgba(0,0,0,.5);  /* Dramatic ink */
-}
-.hero h1 {
-    margin: 0 0 .5rem;
-    font-size: 2.75rem;
-    font-family: 'Uncial Antiqua', serif;  /* Optional: Load a fantasy font via Google Fonts */
-}
-.hero p {
-    margin: 0;
-    font-size: 1.25rem;
+    background-size: cover;
+    background-position: center;
 }
 
-/* -------------------------------------------------
-   6. Sessions table – Scrolled parchment ledger
-   ------------------------------------------------- */
-.sessions__title {
-    margin-bottom: 1rem;
-    color: var(--clr-primary);
-    border-bottom: 2px solid var(--clr-accent);  /* Wax seal line */
-    padding-bottom: .5rem;
+.details-hero::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to bottom, rgba(11, 12, 21, 0.3), var(--bg-dark));
 }
-.sessions__table {
+
+.details-header-content {
+    position: relative;
+    z-index: 2;
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 2rem;
     width: 100%;
-    border-collapse: collapse;
-    background: var(--clr-surface);
-    box-shadow: var(--shadow-md);
-    border-radius: var(--radius);
-    overflow: hidden;
-    border: 1px solid var(--clr-secondary);  /* Leather edging */
-}
-.sessions__table th,
-.sessions__table td {
-    padding: .75rem 1rem;
-    text-align: left;
-    border-bottom: 1px solid var(--clr-muted);  /* Faint ink lines */
-}
-.sessions__table th {
-    background: linear-gradient(to right, var(--clr-primary), var(--clr-secondary));  /* Wood panel */
-    color: #F5F5DC;
-    font-weight: 600;
-    text-shadow: 1px 1px 1px rgba(0,0,0,.3);
-}
-.sessions__table tr:hover {
-    background: rgba(183, 110, 121, .1);  /* Subtle copper wash */
 }
 
-.participants {
-    margin: 0;
-    padding: 0;
-    list-style: none;
-}
-.participants li {
-    margin-bottom: .25rem;
-    font-size: .875rem;
+.details-title {
+    font-size: 3.5rem;
+    font-family: var(--font-header);
+    color: #fff;
+    text-shadow: 0 4px 10px rgba(0,0,0,0.8);
+    margin-bottom: 1rem;
+    line-height: 1.1;
 }
 
-/* Badges – Wax seals or gem inlays */
-.badge {
-    display: inline-block;
-    padding: .375em .75em;
-    font-size: .75rem;
-    font-weight: 600;
-    border-radius: 999px;
+.details-meta-tags {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+}
+
+.tag {
+    padding: 0.4rem 1rem;
+    border-radius: 4px;
+    font-size: 0.8rem;
+    font-weight: 700;
     text-transform: uppercase;
-    box-shadow: inset 0 1px 0 rgba(255,255,255,.2);  /* Inner glow */
-}
-.badge--success {
-    background: var(--clr-success);
-    color: #F5F5DC;
-}
-.badge--warning {
-    background: var(--clr-warning);
-    color: #2C1810;
-}
-.badge--danger {
-    background: var(--clr-danger);
-    color: #F5F5DC;
+    letter-spacing: 1px;
+    background: rgba(255,255,255,0.1);
+    backdrop-filter: blur(5px);
+    border: 1px solid rgba(255,255,255,0.1);
 }
 
-/* -------------------------------------------------
-   7. Footer – Stone hearth
-   ------------------------------------------------- */
-.site-footer {
-    background: linear-gradient(to top, var(--clr-primary), var(--clr-secondary));  /* Hearth embers */
-    color: #E8D5A3;
-    text-align: center;
-    padding: 1.5rem 0;
-    margin-top: 0;
-    border-top: 3px solid var(--clr-accent);  /* Copper engraving */
-}
-.site-footer a {
-    color: #DEB887;  /* Burlywood link */
-    text-decoration: underline;
-}
-.site-footer a:hover { color: #F5F5DC; }
+.tag.difficulty-hard { border-color: var(--accent-red); color: var(--accent-red); }
+.tag.difficulty-medium { border-color: var(--primary); color: var(--primary); }
+.tag.difficulty-easy { border-color: var(--accent-green); color: var(--accent-green); }
 
-/* -------------------------------------------------
-   8. Sticky Footer – Flexbox solution (unchanged)
-   ------------------------------------------------- */
-html, body { height: 100%; margin: 0; }
+/* Details Layout (2 Columns) */
+.details-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 3rem;
+    align-items: start;
+}
 
-.page-wrapper {
+/* Left Column: Description */
+.description-box {
+    background: transparent;
+    font-size: 1.1rem;
+    line-height: 1.8;
+    color: #ccc;
+}
+
+.description-box h2 {
+    font-family: var(--font-header);
+    color: var(--primary);
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+    font-size: 1.8rem;
+}
+
+/* Right Column: Sidebar */
+.sidebar-card {
+    background: var(--bg-card);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 12px;
+    padding: 2rem;
+    position: sticky;
+    top: 100px; /* Sticks when scrolling */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+
+.sidebar-section {
+    margin-bottom: 2rem;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+    padding-bottom: 1.5rem;
+}
+
+.sidebar-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+    padding-bottom: 0;
+}
+
+.sidebar-label {
+    color: var(--text-muted);
+    font-size: 0.8rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.sidebar-value {
+    font-size: 1.2rem;
+    color: #fff;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.btn-action-large {
+    width: 100%;
+    padding: 1rem;
+    font-size: 1rem;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 800;
+    margin-top: 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.btn-join-active {
+    background: var(--primary);
+    color: var(--bg-dark);
+    border: 1px solid var(--primary);
+    box-shadow: 0 0 20px var(--primary-glow);
+}
+
+.btn-join-active:hover {
+    background: #fff;
+    box-shadow: 0 0 30px var(--primary-glow);
+}
+
+.btn-disabled {
+    background: rgba(255,255,255,0.1);
+    color: var(--text-muted);
+    border: 1px solid transparent;
+    cursor: not-allowed;
+}
+
+/* --- Player Roster List Styles --- */
+.player-list {
     display: flex;
     flex-direction: column;
-    min-height: 100vh;
-}
-.page-wrapper__inner { flex: 1 0 auto; }
-.page-push { flex-grow: 1; }
-.page-main { flex-shrink: 0; }
-
-.site-footer {
-    flex-shrink: 0;
+    gap: 0.8rem;
+    margin-top: 1rem;
 }
 
-/* -------------------------------------------------
-   9. Responsive tweaks – Mobile scroll like a map
-   ------------------------------------------------- */
-@media (max-width: 640px) {
-    .sessions__table { font-size: .875rem; }
-    .sessions__table th,
-    .sessions__table td { padding: .5rem .75rem; }
-    .hero h1 { font-size: 2rem; }
+.player-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: rgba(255,255,255,0.03);
+    padding: 0.6rem;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.05);
+    transition: background 0.2s;
 }
 
-
-.form-group { margin-bottom: 1.5rem; }
-.form-row { display: flex; gap: 1rem; flex-wrap: wrap; }
-.form-row .form-group { flex: 1; min-width: 200px; }
-.form-label { display: block; margin-bottom: .5rem; font-weight: 600; color: var(--clr-primary); }
-.form-control {
-    width: 100%; padding: .75rem; border: 1px solid var(--clr-secondary);
-    border-radius: var(--radius); background: #FFF; font: inherit;
-    transition: var(--transition);
+.player-row:hover {
+    background: rgba(255,255,255,0.07);
 }
-.form-control:focus { outline: none; border-color: var(--clr-accent); box-shadow: 0 0 0 3px rgba(183,110,121,.2); }
-.form-error { color: var(--clr-danger); font-size: .875rem; margin-top: .25rem; }
-.radio-group { display: flex; flex-direction: column; gap: .75rem; }
-.radio-label { display: flex; align-items: center; cursor: pointer; }
-.radio-label input { margin-right: .5rem; }
+
+.player-avatar-small {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 1px solid var(--primary);
+}
+
+.player-info {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+}
+
+.player-name {
+    font-size: 0.9rem;
+    color: var(--text-main);
+    font-weight: 700;
+}
+
+.player-class {
+    font-size: 0.75rem;
+    color: var(--text-muted);
+}
+
+.slot-empty {
+    border-style: dashed;
+    opacity: 0.6;
+}
+
+.slot-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255,255,255,0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-muted);
+    font-size: 0.8rem;
+}
+
+@media (max-width: 768px) {
+    .details-grid { grid-template-columns: 1fr; }
+    .details-title { font-size: 2rem; }
+    .sidebar-card { position: static; }
+}

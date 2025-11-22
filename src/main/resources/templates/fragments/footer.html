@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-
-<th:block th:fragment="footer">
-    <footer class="site-footer">
-        <div class="container">
-            <p>All rights reserved. Created by
-                <a href="https://github.com/latzskim" target="_blank">latzskim</a>
-            </p>
-        </div>
-    </footer>
-</th:block>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+<footer class="footer" th:fragment="footer">
+    <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2024</span> Mythos RPG Engine. All rights reserved.</p>
+    <div style="margin-top: 1rem;">
+        <a href="#">Privacy Policy</a> |
+        <a href="#">Terms of Service</a> |
+        <a href="#">Support</a>
+    </div>
+</footer>
+</body>
 </html>

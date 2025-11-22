@@ -1,9 +1,6 @@
 package com.example.rpgengine.session.domain.port.out.read;
 
-import com.example.rpgengine.session.domain.valueobject.SessionId;
-import com.example.rpgengine.session.domain.valueobject.SessionStatus;
-import com.example.rpgengine.session.domain.valueobject.UserId;
-import com.example.rpgengine.session.domain.valueobject.Visibility;
+import com.example.rpgengine.session.domain.valueobject.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -49,6 +46,13 @@ public class SessionReadModel {
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility")
     private Visibility visibility;
+
+    @Enumerated(EnumType.STRING)
+    @Column(name = "difficulty")
+    private DifficultyLevel difficulty;
+
+    @Column(name = "estimated_duration", nullable = false)
+    private Long estimatedDurationInMinutes;
 
     @Column(name = "cancelled_at")
     private LocalDateTime cancelledAt;
