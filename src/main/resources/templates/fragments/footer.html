@@ -1,19 +1,12 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org"
-      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-
+<html xmlns:th="http://www.thymeleaf.org">
 <body>
-<footer class="global-footer">
-    <div class="global-footer-container">
-        <div class="footer-links">
-            <a href="#">About</a>
-            <a href="#">Help Center</a>
-            <a href="#">Terms of Service</a>
-            <a href="#">Privacy Policy</a>
-        </div>
-        <span class="copyright"
-        >&copy; 2025 TTRPG Sessions. All rights reserved.</span
-        >
+<footer class="footer" th:fragment="footer">
+    <p>&copy; <span th:text="${#dates.format(#dates.createNow(), 'yyyy')}">2024</span> Mythos RPG Engine. All rights reserved.</p>
+    <div style="margin-top: 1rem;">
+        <a href="#">Privacy Policy</a> |
+        <a href="#">Terms of Service</a> |
+        <a href="#">Support</a>
     </div>
 </footer>
 </body>

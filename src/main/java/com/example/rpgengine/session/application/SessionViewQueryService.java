@@ -32,7 +32,9 @@ class SessionViewQueryService implements SessionViewQueryServicePort {
 
     @Override
     public List<SessionListViewModel> getSessionsByUserId(UserId userId) {
-        return List.of();
+        return sessionReadModelRepositoryPort.findByOwnerId(userId).stream()
+                .map(SessionListViewModel::from)
+                .toList();
     }
 
     @Override

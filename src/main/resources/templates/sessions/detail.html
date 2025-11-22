@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${ses.title} + ' - Mythos'">Session Details</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<!-- Header -->
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- Details Hero -->
+<div class="details-hero"
+     th:style="'background-image: url(https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=1200&auto=format&fit=crop)'">
+    <div class="details-header-content">
+        <!-- Tags generated from status and difficulty -->
+        <div class="details-meta-tags">
+                <span class="tag"
+                      th:classappend="${ses.status == 'IN_PROGRESS'} ? 'status-live' : ''"
+                      th:text="${ses.status}">Status</span>
+            <span class="tag"
+                  th:classappend="'difficulty-' + ${#strings.toLowerCase(ses.difficulty)}"
+                  th:text="${ses.difficulty}">Difficulty</span>
+        </div>
+        <h1 class="details-title" th:text="${ses.title}">Session Title</h1>
+
+        <!-- GM Info in Hero -->
+        <div class="gm-info">
+            <img th:src="${ses.ownerAvatarUrl} ?: @{../images/gm_avatar.png}" alt="GM" class="gm-avatar" style="width:40px; height:40px;">
+            <div>
+                <span class="gm-label" style="color: #ccc;">Gamemaster</span>
+                <span class="gm-name" style="font-size: 1.1rem;" th:text="${ses.ownerDisplayName}">GM Name</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Main Content -->
+<div class="container">
+    <div class="details-grid">
+
+        <!-- LEFT COLUMN: Description & Content -->
+        <div class="description-box">
+            <h2>About the Adventure</h2>
+            <!-- Preserving whitespace for description -->
+            <p th:text="${ses.description}" style="white-space: pre-wrap;">
+                Full description goes here...
+            </p>
+
+            <h2 style="font-size: 1.4rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">Session Requirements</h2>
+            <ul style="margin-left: 1.5rem; margin-bottom: 2rem;">
+                <li>Microphone required</li>
+                <li>18+ Only</li>
+                <li th:text="|Minimum Players: ${ses.minPlayers}|">Min Players</li>
+            </ul>
+        </div>
+
+        <!-- RIGHT COLUMN: Sidebar Info -->
+        <aside>
+            <div class="sidebar-card">
+
+                <!-- Date & Time -->
+                <div class="sidebar-section">
+                    <span class="sidebar-label">Start Date</span>
+                    <div class="sidebar-value">
+                        <i class="fa-regular fa-calendar" style="color: var(--primary);"></i>
+                        <span th:text="${#temporals.format(ses.startDate, 'EEE, MMM dd')}">Date</span>
+                    </div>
+                    <div class="sidebar-value" style="margin-top: 5px; font-size: 1rem; color: var(--text-muted);">
+                        <i class="fa-regular fa-clock"></i>
+                        <span th:text="${#temporals.format(ses.startDate, 'h:mm a')} + ' (' + ${ses.durationInMinutes} + 'm)'">Time</span>
+                    </div>
+                </div>
+
+                <!-- Player Roster / Party Composition -->
+                <div class="sidebar-section">
+                    <div style="display:flex; justify-content:space-between; align-items: baseline;">
+                        <span class="sidebar-label">Party Composition</span>
+                        <span style="font-size: 0.9rem; color: var(--primary);" th:text="|${ses.approvedPlayers}/${ses.maxPlayers} Filled|">2/5</span>
+                    </div>
+
+                    <!-- MOCK DATA: Player List (Pure HTML as requested) -->
+                    <div class="player-list">
+
+                        <!-- Mock Player 1 -->
+                        <div class="player-row">
+                            <img th:src="@{../images/player_avatar.png}" class="player-avatar-small" alt="Player">
+                            <div class="player-info">
+                                <span class="player-name">NightShade</span>
+                                <span class="player-class">Lvl 4 Rogue</span>
+                            </div>
+                        </div>
+
+                        <!-- Mock Player 2 -->
+                        <div class="player-row">
+                            <img th:src="@{../images/player_avatar.png}" class="player-avatar-small" alt="Player">
+                            <div class="player-info">
+                                <span class="player-name">MerlinTheGrey</span>
+                                <span class="player-class">Lvl 5 Wizard</span>
+                            </div>
+                        </div>
+
+                        <!-- Mock Player 3 -->
+                        <div class="player-row">
+                            <img th:src="@{../images/player_avatar.png}" class="player-avatar-small" alt="Player">
+                            <div class="player-info">
+                                <span class="player-name">IronClad</span>
+                                <span class="player-class">Lvl 5 Fighter</span>
+                            </div>
+                        </div>
+
+                        <!-- Mock Empty Slot -->
+                        <div class="player-row slot-empty">
+                            <div class="slot-icon">
+                                <i class="fa-solid fa-plus"></i>
+                            </div>
+                            <div class="player-info">
+                                <span class="player-name" style="color: var(--text-muted);">Open Slot</span>
+                                <span class="player-class">Waiting for hero...</span>
+                            </div>
+                        </div>
+
+                    </div>
+                    <!-- End Mock Data -->
+
+                    <p th:if="${ses.pendingInvites > 0}" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px;">
+                        <i class="fa-solid fa-envelope"></i> <span th:text="${ses.pendingInvites}">0</span> pending request(s)
+                    </p>
+                </div>
+
+                <!-- Action Button -->
+                <form th:action="@{/sessions/{id}/join(id=${ses.id})}" method="post">
+
+                    <!-- Case: In Progress -->
+                    <button th:if="${ses.status == 'IN_PROGRESS'}" type="button" class="btn-action-large btn-join-active">
+                        <i class="fa-solid fa-eye"></i> Spectate Now
+                    </button>
+
+                    <!-- Case: Scheduled & Open Slots -->
+                    <button th:if="${ses.status != 'IN_PROGRESS' and ses.approvedPlayers < ses.maxPlayers}"
+                            type="submit" class="btn-action-large btn-join-active">
+                        Request to Join
+                    </button>
+
+                    <!-- Case: Full -->
+                    <button th:if="${ses.status != 'IN_PROGRESS' and ses.approvedPlayers >= ses.maxPlayers}"
+                            type="button" disabled class="btn-action-large btn-disabled">
+                        Session Full
+                    </button>
+
+                </form>
+
+            </div>
+        </aside>
+    </div>
+</div>
+
+<!-- Footer -->
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>
