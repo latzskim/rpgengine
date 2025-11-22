@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Session - Mythos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" th:href="@{/css/style.css}">
+</head>
+<body>
+
+<div th:replace="~{fragments/header :: header}"></div>
+
+<!-- Background atmosphere -->
+<div class="details-hero" style="height: 200px; margin-bottom: 0; background-image: url('https://images.unsplash.com/photo-1519074069444-1ba4fff66d16?q=80&w=1200&auto=format&fit=crop');">
+    <div class="details-hero-overlay"></div>
+</div>
+
+<div class="container" style="margin-top: -100px; position: relative; z-index: 10;">
+
+    <div class="form-container">
+        <form class="form-card" th:action="@{/sessions}" th:object="${createSessionCommand}" method="post">
+
+            <div class="form-header">
+                <h2>Summon New Session</h2>
+                <p>Define the parameters of your next adventure.</p>
+            </div>
+
+            <!-- Error Message Block -->
+            <div th:if="${errorMessage}" style="background: rgba(255, 75, 75, 0.1); border: 1px solid var(--accent-red); color: var(--accent-red); padding: 1rem; border-radius: 6px; margin-bottom: 2rem; text-align: center;">
+                <i class="fa-solid fa-triangle-exclamation"></i> <span th:text="${errorMessage}">Error message</span>
+            </div>
+
+            <div class="form-grid">
+
+                <!-- Title -->
+                <div class="form-group full-width">
+                    <label for="title" class="form-label">Session Title</label>
+                    <input type="text" id="title" th:field="*{title}" class="form-control" placeholder="e.g. The Curse of Strahd - Chapter 1" required>
+                </div>
+
+                <!-- Description -->
+                <div class="form-group full-width">
+                    <label for="description" class="form-label">Description & MOTD</label>
+                    <textarea id="description" th:field="*{description}" class="form-control" placeholder="Describe the adventure, requirements, and tone..." required></textarea>
+                </div>
+
+                <!-- Start Date -->
+                <div class="form-group">
+                    <label for="startDate" class="form-label">Start Date & Time</label>
+                    <input type="datetime-local" id="startDate" th:field="*{startDate}" class="form-control" required>
+                </div>
+
+                <!-- Duration -->
+                <div class="form-group">
+                    <label for="duration" class="form-label">Duration (Minutes)</label>
+                    <input type="number" id="duration" th:field="*{durationInMinutes}" class="form-control" placeholder="e.g. 180" min="30" step="15" required>
+                </div>
+
+                <!-- Difficulty -->
+                <div class="form-group">
+                    <label for="difficulty" class="form-label">Difficulty Level</label>
+                    <select id="difficulty" th:field="*{difficultyLevel}" class="form-control">
+                        <!-- Adjust values to match your Enum exactly -->
+                        <option value="EASY">Easy (Beginner Friendly)</option>
+                        <option value="MEDIUM">Medium (Standard)</option>
+                        <option value="HARD">Hard (Lethal/Tactical)</option>
+                    </select>
+                </div>
+
+                <!-- Visibility -->
+                <div class="form-group">
+                    <label for="visibility" class="form-label">Visibility</label>
+                    <select id="visibility" th:field="*{visibility}" class="form-control">
+                        <option value="PUBLIC">Public (Listed for everyone)</option>
+                        <option value="PRIVATE">Private (Invite only)</option>
+                    </select>
+                </div>
+
+                <!-- Player Limits -->
+                <div class="form-group">
+                    <label for="minPlayers" class="form-label">Min Players</label>
+                    <input type="number" id="minPlayers" th:field="*{minPlayers}" class="form-control" value="2" min="1" max="10">
+                </div>
+
+                <div class="form-group">
+                    <label for="maxPlayers" class="form-label">Max Players</label>
+                    <input type="number" id="maxPlayers" th:field="*{maxPlayers}" class="form-control" value="5" min="1" max="20">
+                </div>
+
+                <!-- Actions -->
+                <div class="form-actions">
+                    <a href="/" class="btn-cancel">Cancel</a>
+                    <button type="submit" class="btn-submit">Create Session</button>
+                </div>
+
+            </div>
+        </form>
+    </div>
+</div>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

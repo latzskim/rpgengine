@@ -29,10 +29,17 @@
 
 <div class="container">
 
-    <div class="filters">
-        <div class="filter-tag active">All Sessions</div>
-        <div class="filter-tag">Starting Soon</div>
-        <div class="filter-tag">In Progress</div>
+    <!-- Action Bar -->
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; flex-wrap: wrap; gap: 1rem;">
+        <div class="filters" style="margin-bottom: 0; flex-grow: 1;">
+            <div class="filter-tag active">All Sessions</div>
+            <div class="filter-tag">Starting Soon</div>
+            <div class="filter-tag">In Progress</div>
+        </div>
+
+        <a th:href="@{/sessions/create}" class="btn-primary" style="text-decoration: none; display: flex; align-items: center; gap: 0.5rem;">
+            <i class="fa-solid fa-plus"></i> Create Session
+        </a>
     </div>
 
     <div class="session-grid">

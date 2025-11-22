@@ -45,7 +45,7 @@ class SessionController {
                     null,
                     null
             ));
-            return "sessions/createForm";
+            return "sessions/create";
         }).orElse("access-denied");
     }
 
