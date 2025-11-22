@@ -143,8 +143,11 @@
                     </button>
 
                     <!-- Case: Scheduled & Open Slots -->
-                    <button th:if="${ses.status != 'IN_PROGRESS' and ses.approvedPlayers < ses.maxPlayers}"
-                            type="submit" class="btn-action-large btn-join-active">
+                    <button
+                            th:if="${ses.status != 'IN_PROGRESS' and ses.approvedPlayers < ses.maxPlayers}"
+                            type="submit"
+                            class="btn-action-large btn-join-active"
+                    >
                         Request to Join
                     </button>
 

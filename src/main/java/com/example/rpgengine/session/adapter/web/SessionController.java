@@ -8,6 +8,8 @@ import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
 import com.example.rpgengine.session.domain.port.out.UserPort;
 import com.example.rpgengine.session.domain.valueobject.SessionId;
 import com.example.rpgengine.session.domain.valueobject.SessionUser;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -18,6 +20,8 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/sessions")
 class SessionController {
+    public static final String ACCESS_DENIED = "access-denied";
+
     private final SessionCommandServicePort sessionCommandServicePort;
     private final SessionViewQueryServicePort sessionViewQueryServicePort;
     private final UserPort userPort;
@@ -47,7 +51,7 @@ class SessionController {
                     null
             ));
             return "sessions/create";
-        }).orElse("access-denied");
+        }).orElse(ACCESS_DENIED);
     }
 
     @PostMapping
@@ -77,7 +81,7 @@ class SessionController {
 
             // TODO: catch exception + custom "something went wrong" page?
             return "sessions/create";
-        }).orElse("access-denied");
+        }).orElse(ACCESS_DENIED);
     }
 
     @GetMapping("/{id}")
@@ -88,13 +92,14 @@ class SessionController {
             ).stream().filter(session -> session.id().equals(id)).findFirst().get();
             model.addAttribute("ses", sessionReadModel);
             return "sessions/detail";
-        }).orElse("access-denied");
+        }).orElse(ACCESS_DENIED);
     }
 
     @PostMapping("/{id}/join")
     String joinToSession(
             @PathVariable String id,
             @RequestParam(required = false, name = "invite_code") String inviteCode,
+
             Principal principal) {
         return getSessionUser(principal).map(sessionUser -> {
             sessionCommandServicePort.join(new JoinSessionCommand(
@@ -103,8 +108,7 @@ class SessionController {
                     inviteCode
             ));
             return "redirect:/sessions/" + id;
-
-        }).orElse("access-denied");
+        }).orElse(ACCESS_DENIED);
     }
 
 
