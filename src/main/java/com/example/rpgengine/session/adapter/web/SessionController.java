@@ -4,6 +4,7 @@ import com.example.rpgengine.session.domain.exception.SessionValidationException
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
+import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
 import com.example.rpgengine.session.domain.port.out.UserPort;
 import com.example.rpgengine.session.domain.valueobject.SessionId;
 import com.example.rpgengine.session.domain.valueobject.SessionUser;
@@ -75,7 +76,7 @@ class SessionController {
             }
 
             // TODO: catch exception + custom "something went wrong" page?
-            return "sessions/createForm";
+            return "sessions/create";
         }).orElse("access-denied");
     }
 
@@ -87,6 +88,22 @@ class SessionController {
             ).stream().filter(session -> session.id().equals(id)).findFirst().get();
             model.addAttribute("ses", sessionReadModel);
             return "sessions/detail";
+        }).orElse("access-denied");
+    }
+
+    @PostMapping("/{id}/join")
+    String joinToSession(
+            @PathVariable String id,
+            @RequestParam(required = false, name = "invite_code") String inviteCode,
+            Principal principal) {
+        return getSessionUser(principal).map(sessionUser -> {
+            sessionCommandServicePort.join(new JoinSessionCommand(
+                    SessionId.fromString(id),
+                    sessionUser.id(),
+                    inviteCode
+            ));
+            return "redirect:/sessions/" + id;
+
         }).orElse("access-denied");
     }
 

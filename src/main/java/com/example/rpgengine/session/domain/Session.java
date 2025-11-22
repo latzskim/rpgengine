@@ -1,10 +1,7 @@
 package com.example.rpgengine.session.domain;
 
 import com.example.rpgengine.session.domain.event.*;
-import com.example.rpgengine.session.domain.exception.SessionGameMasterAlreadyAssignedException;
-import com.example.rpgengine.session.domain.exception.SessionStatusException;
-import com.example.rpgengine.session.domain.exception.SessionUserNotFound;
-import com.example.rpgengine.session.domain.exception.SessionValidationException;
+import com.example.rpgengine.session.domain.exception.*;
 import com.example.rpgengine.session.domain.valueobject.*;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -195,6 +192,13 @@ public class Session {
     }
 
     protected void joinRequest(UserId joinUserId) {
+        var userAlreadyJoined = this.joinRequests.stream()
+                .anyMatch(u -> u.getUserId().equals(joinUserId));
+
+        if (userAlreadyJoined) {
+            throw new SessionUserAlreadyAssignedException();
+        }
+
         var joinReq = new JoinRequest(joinUserId);
         this.joinRequests.add(joinReq);
         this.domainEvents.add(new SessionUserJoinRequested(this.id, joinUserId));
@@ -246,7 +250,7 @@ public class Session {
         return this.getJoinRequests()
                 .stream()
                 .filter(p -> p.getUserId().equals(userId))
-                .findFirst().orElseThrow(SessionUserNotFound::new);
+                .findFirst().orElseThrow(SessionUserNotFoundException::new);
     }
 
     public boolean canUserApproveJoinRequests(UserId userId) {
