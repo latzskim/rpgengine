@@ -1,14 +1,14 @@
 package com.example.rpgengine.session.application;
 
 import com.example.rpgengine.session.domain.Session;
-import com.example.rpgengine.session.domain.port.in.query.SessionListViewModel;
-import com.example.rpgengine.session.domain.port.in.query.SessionViewModel;
-import com.example.rpgengine.session.domain.port.in.query.SortBy;
+import com.example.rpgengine.session.domain.exception.SessionForbiddenException;
+import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
+import com.example.rpgengine.session.domain.port.in.query.*;
 import com.example.rpgengine.session.domain.port.out.read.SessionReadModel;
 import com.example.rpgengine.session.domain.port.out.read.SessionReadModelRepositoryPort;
 import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
-import com.example.rpgengine.session.domain.port.in.query.SessionsEligibleToPlayQuery;
 import com.example.rpgengine.session.domain.port.out.read.SessionSpecifications;
+import com.example.rpgengine.session.domain.port.out.read.SessionUserReadModelRepositoryPort;
 import com.example.rpgengine.session.domain.valueobject.SessionId;
 import com.example.rpgengine.session.domain.valueobject.SessionStatus;
 import com.example.rpgengine.session.domain.valueobject.UserId;
@@ -18,16 +18,20 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.String.format;
 
 @Service
 class SessionViewQueryService implements SessionViewQueryServicePort {
     private final SessionReadModelRepositoryPort sessionReadModelRepositoryPort;
+    private final SessionUserReadModelRepositoryPort sessionUserReadModelRepositoryPort;
 
-    SessionViewQueryService(SessionReadModelRepositoryPort sessionReadModelRepositoryPort) {
+    SessionViewQueryService(SessionReadModelRepositoryPort sessionReadModelRepositoryPort, SessionUserReadModelRepositoryPort sessionUserReadModelRepositoryPort) {
         this.sessionReadModelRepositoryPort = sessionReadModelRepositoryPort;
+        this.sessionUserReadModelRepositoryPort = sessionUserReadModelRepositoryPort;
     }
 
     @Override
@@ -63,7 +67,44 @@ class SessionViewQueryService implements SessionViewQueryServicePort {
 
     @Override
     public SessionViewModel getSessionByUserId(SessionId sessionId, UserId userId) {
-        return null;
+        var session = sessionReadModelRepositoryPort.findById(sessionId)
+                .orElseThrow(SessionNotFoundException::new);
+
+        if (session.getStatus().equals(SessionStatus.DRAFT) && !session.getOwnerId().equals(userId)) {
+            throw new SessionForbiddenException("Only owners can edit draft sessions");
+        }
+
+        List<UserViewModel> pendingInvites = userViewModelsOf(session.getPendingInvites());
+        List<UserViewModel> approvedPlayers = userViewModelsOf(session.getApprovedPlayers());
+
+        return SessionViewModel.from(
+                session,
+                pendingInvites,
+                approvedPlayers,
+                new SessionViewModel.Permissions(
+                        canJoin(userId, session),
+                        session.getOwnerId().equals(userId)
+                )
+        );
+    }
+
+    private static Boolean canJoin(UserId userId, SessionReadModel session) {
+        return !session.getPendingInvites().contains(userId.getUserId().toString())
+                && !session.getApprovedPlayers().contains(userId.getUserId().toString());
+    }
+
+    private List<UserViewModel> userViewModelsOf(String ids) {
+        if (ids.isEmpty()) {
+            return List.of();
+        }
+
+        return Arrays.stream(ids.split("#")).
+                map(UserId::fromString).
+                map(sessionUserReadModelRepositoryPort::findById).
+                filter(Optional::isPresent).
+                map(Optional::get).
+                map(UserViewModel::fromReadModel).
+                toList();
     }
 
     private static PageRequest buildPage(int page, int elements, SortBy sortBy) {

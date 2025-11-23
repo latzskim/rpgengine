@@ -125,6 +125,20 @@ class SessionTest {
     }
 
     @Test
+    public void shouldThrowSessionUserAlreadyAssignedExceptionWhenJoinToTheSameSessionTwice() {
+        // given:
+        var session = makePublicSession();
+        var invitePolicy = JoinSessionPolicyFactory.createJoinPolicy("");
+        var userId = UserId.fromUUID(UUID.randomUUID());
+
+        // and user requested to join:
+        session.join(userId, invitePolicy);
+
+        // when & then:
+        assertThrows(SessionUserAlreadyAssignedException.class, () -> session.join(userId, invitePolicy));
+    }
+
+    @Test
     public void shouldThrowSessionPrivateExceptionWhenNoInviteCode() {
         // given:
         var session = makePrivateSession();

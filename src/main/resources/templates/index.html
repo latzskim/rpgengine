@@ -86,10 +86,10 @@
 
                         <div class="gm-section">
                             <div class="gm-info">
-                                <img th:src="${ses.ownerAvatarUrl} ?: @{images/gm_avatar.png}" alt="GM" class="gm-avatar">
+                                <img th:src="${ses.owner.avatarUrl} ?: @{images/gm_avatar.png}" alt="GM" class="gm-avatar">
                                 <div>
                                     <span class="gm-label">Gamemaster</span>
-                                    <span class="gm-name" th:text="${ses.ownerDisplayName}">GM Name</span>
+                                    <span class="gm-name" th:text="${ses.owner.displayName}">GM Name</span>
                                 </div>
                             </div>
                             <!-- Action Button (Visual only inside the anchor) -->
