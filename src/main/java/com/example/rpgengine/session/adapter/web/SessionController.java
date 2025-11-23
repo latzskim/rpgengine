@@ -6,10 +6,12 @@ import com.example.rpgengine.session.domain.exception.SessionValidationException
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
+import com.example.rpgengine.session.domain.port.in.command.HandleUserJoinSessionDecisionCommand;
 import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
 import com.example.rpgengine.session.domain.port.out.UserPort;
 import com.example.rpgengine.session.domain.valueobject.SessionId;
 import com.example.rpgengine.session.domain.valueobject.SessionUser;
+import com.example.rpgengine.session.domain.valueobject.UserId;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -97,6 +99,9 @@ class SessionController {
             );
 
             model.addAttribute("ses", detail);
+            if (userIdOrNull != null) {
+                model.addAttribute("currentUserId", userIdOrNull.getUserId().toString());
+            }
             return "sessions/detail";
         } catch (SessionNotFoundException e) {
             // TODO:
@@ -112,13 +117,30 @@ class SessionController {
     String joinToSession(
             @PathVariable String id,
             @RequestParam(required = false, name = "invite_code") String inviteCode,
-
             Principal principal) {
         return getSessionUser(principal).map(sessionUser -> {
             sessionCommandServicePort.join(new JoinSessionCommand(
                     SessionId.fromString(id),
                     sessionUser.id(),
                     inviteCode
+            ));
+            return "redirect:/sessions/" + id;
+        }).orElse(ACCESS_DENIED);
+    }
+
+    @PostMapping("/{id}/requests/{userId}")
+    String handleUserJoinRequest(
+            @PathVariable String id,
+            @PathVariable String userId,
+            @RequestParam(name = "approve") Boolean approve,
+            Principal principal
+    ) {
+        return getSessionUser(principal).map(sessionUser -> {
+            sessionCommandServicePort.handleUserJoinRequest(new HandleUserJoinSessionDecisionCommand(
+                    sessionUser.id(),
+                    SessionId.fromString(id),
+                    UserId.fromString(userId),
+                    approve
             ));
             return "redirect:/sessions/" + id;
         }).orElse(ACCESS_DENIED);

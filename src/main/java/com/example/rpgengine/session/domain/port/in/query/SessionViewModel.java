@@ -19,13 +19,20 @@ public record SessionViewModel(
         List<UserViewModel> pendingInvites,
         Integer minPlayers,
         Integer maxPlayers,
-        Boolean canJoin
+        Permissions permissions
 ) {
+
+    public record Permissions(
+            Boolean canJoin,
+            Boolean isOwner
+    ) {
+    }
+
     public static SessionViewModel from(
             SessionReadModel session,
             List<UserViewModel> pendingInvites,
             List<UserViewModel> approvedPlayers,
-            Boolean canJoin
+            Permissions permissions
     ) {
 
         return new SessionViewModel(
@@ -41,7 +48,7 @@ public record SessionViewModel(
                 pendingInvites,
                 Session.MIN_PLAYERS_EXCLUDING_GM,
                 Session.MAX_PLAYERS_EXCLUDING_GM,
-                canJoin
+                permissions
         );
     }
 }

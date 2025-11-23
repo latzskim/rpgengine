@@ -2,6 +2,8 @@ package com.example.rpgengine.session.application;
 
 import com.example.rpgengine.session.domain.event.SessionCreated;
 import com.example.rpgengine.session.domain.event.SessionUserJoinRequested;
+import com.example.rpgengine.session.domain.event.SessionUserJoined;
+import com.example.rpgengine.session.domain.event.SessionUserRejected;
 import com.example.rpgengine.session.domain.exception.SessionInvalidUserException;
 import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
 import com.example.rpgengine.session.domain.port.out.read.SessionReadModel;
@@ -13,7 +15,6 @@ import com.example.rpgengine.session.domain.valueobject.UserId;
 import com.example.rpgengine.shared.domain.event.UserActivated;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.event.TransactionalEventListener;
 
 @Service
 class SessionReadModelProjection {
@@ -71,6 +72,39 @@ class SessionReadModelProjection {
     }
 
     @EventListener
+    void on(SessionUserJoined event) {
+        var userJoined = sessionUserReadModelRepositoryPort
+                .findById(event.userId())
+                .orElseThrow(SessionInvalidUserException::new);
+
+        var session = sessionReadModelRepositoryPort.findById(event.sessionId())
+                .orElseThrow(SessionNotFoundException::new);
+
+        var approvedPlayers = session.getApprovedPlayers() +
+                userJoined.getId().getUserId().toString() +
+                "#";
+
+        session.setApprovedPlayers(approvedPlayers);
+        removeFromPending(userJoined, session);
+
+        sessionReadModelRepositoryPort.save(session);
+    }
+
+    @EventListener
+    void on(SessionUserRejected event) {
+        var userJoined = sessionUserReadModelRepositoryPort
+                .findById(event.userId())
+                .orElseThrow(SessionInvalidUserException::new);
+
+        var session = sessionReadModelRepositoryPort.findById(event.sessionId())
+                .orElseThrow(SessionNotFoundException::new);
+
+        removeFromPending(userJoined, session);
+
+        sessionReadModelRepositoryPort.save(session);
+    }
+
+    @EventListener
     void on(UserActivated event) {
         var sessionUserReadModel = UserReadModel.builder()
                 .id(UserId.fromUUID(event.id()))
@@ -81,5 +115,11 @@ class SessionReadModelProjection {
                 .build();
 
         this.sessionUserReadModelRepositoryPort.save(sessionUserReadModel);
+    }
+
+    private static void removeFromPending(UserReadModel userJoined, SessionReadModel session) {
+        var userPendingId = userJoined.getId().getUserId().toString() + "#";
+        var pendingInvites = session.getPendingInvites().replace(userPendingId, "");
+        session.setPendingInvites(pendingInvites);
     }
 }

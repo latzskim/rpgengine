@@ -1,12 +1,14 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:text="${ses.title} + ' - Mythos'">Session Details</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap"
+          rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" th:href="@{/css/style.css}">
 </head>
@@ -32,7 +34,8 @@
 
         <!-- GM Info in Hero -->
         <div class="gm-info">
-            <img th:src="${ses.owner.avatarUrl} ?: @{../images/gm_avatar.png}" alt="GM" class="gm-avatar" style="width:40px; height:40px;">
+            <img th:src="${ses.owner.avatarUrl} ?: @{../images/gm_avatar.png}" alt="GM" class="gm-avatar"
+                 style="width:40px; height:40px;">
             <div>
                 <span class="gm-label" style="color: #ccc;">Gamemaster</span>
                 <span class="gm-name" style="font-size: 1.1rem;" th:text="${ses.owner.displayName}">GM Name</span>
@@ -53,7 +56,8 @@
                 Full description goes here...
             </p>
 
-            <h2 style="font-size: 1.4rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">Session Requirements</h2>
+            <h2 style="font-size: 1.4rem; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1rem;">Session
+                Requirements</h2>
             <ul style="margin-left: 1.5rem; margin-bottom: 2rem;">
                 <li>Microphone required</li>
                 <li>18+ Only</li>
@@ -82,14 +86,21 @@
                 <div class="sidebar-section">
                     <div style="display:flex; justify-content:space-between; align-items: baseline;">
                         <span class="sidebar-label">Party Composition</span>
-                        <span style="font-size: 0.9rem; color: var(--primary);" th:text="|${ses.approvedPlayers.size()}/${ses.maxPlayers} Filled|">2/5</span>
+                        <span style="font-size: 0.9rem; color: var(--primary);"
+                              th:text="|${ses.approvedPlayers.size()}/${ses.maxPlayers} Filled|">2/5</span>
                     </div>
 
                     <div class="player-list">
                         <div class="player-row" th:each="player : ${ses.approvedPlayers}">
-                            <img th:src="${player.avatarUrl} ?: @{../images/player_avatar.png}" class="player-avatar-small" alt="Player">
+                            <img th:src="${player.avatarUrl} ?: @{../images/player_avatar.png}"
+                                 class="player-avatar-small" alt="Player">
                             <div class="player-info">
-                                <span class="player-name" th:text="${player.displayName}">NightShade</span>
+                                <div>
+                                    <span class="player-name" th:text="${player.displayName}">NightShade</span>
+
+                                    <span class="tag-you" th:if="${player.id == currentUserId}">You</span>
+                                </div>
+
                                 <span class="player-class">Lvl 4 Rogue</span>
                             </div>
                         </div>
@@ -106,30 +117,33 @@
                         </div>
 
                     </div>
-                    <!-- End Mock Data -->
 
-                    <div class="pending-section" th:if="${not #lists.isEmpty(ses.pendingInvites)}">
+                    <div class="pending-section"
+                         th:if="${ses.permissions.isOwner && not #lists.isEmpty(ses.pendingInvites)}">
                         <div style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 0.8rem;">
-                            <span class="sidebar-label" style="margin-bottom:0; color: var(--primary);">Pending Requests</span>
+                            <span class="sidebar-label"
+                                  style="margin-bottom:0; color: var(--primary);">Pending Requests</span>
                             <span class="sidebar-label" style="margin-bottom:0;" th:text="${ses.pendingInvites.size()}">1</span>
                         </div>
 
                         <div class="pending-list">
                             <div class="pending-row" th:each="invite : ${ses.pendingInvites}">
-
                                 <div class="pending-user-info">
-                                    <img th:src="${invite.avatarUrl} ?: @{/images/player_avatar.png}" class="pending-avatar" alt="Avatar">
+                                    <img th:src="${invite.avatarUrl} ?: @{/images/player_avatar.png}"
+                                         class="pending-avatar" alt="Avatar">
                                     <span class="pending-name" th:text="${invite.displayName}">Player Name</span>
                                 </div>
 
                                 <div class="pending-actions">
-                                    <form th:action="@{/sessions/{sessionId}/requests/{userId}/approve(sessionId=${ses.id}, userId=${invite.id})}" method="post">
+                                    <form th:action="@{/sessions/{sessionId}/requests/{userId}?approve=true(sessionId=${ses.id}, userId=${invite.id})}"
+                                          method="post">
                                         <button type="submit" class="btn-icon-action btn-approve" title="Approve">
                                             <i class="fa-solid fa-check"></i>
                                         </button>
                                     </form>
 
-                                    <form th:action="@{/sessions/{sessionId}/requests/{userId}/reject(sessionId=${ses.id}, userId=${invite.id})}" method="post">
+                                    <form th:action="@{/sessions/{sessionId}/requests/{userId}?approve=false(sessionId=${ses.id}, userId=${invite.id})}"
+                                          method="post">
                                         <button type="submit" class="btn-icon-action btn-reject" title="Reject">
                                             <i class="fa-solid fa-xmark"></i>
                                         </button>
@@ -141,10 +155,12 @@
                 </div>
 
                 <!-- Action Button -->
-                <form th:action="@{/sessions/{id}/join(id=${ses.id})}" method="post">
+                <form th:if="${ses.permissions.canJoin == true}" th:action="@{/sessions/{id}/join(id=${ses.id})}"
+                      method="post">
 
                     <!-- Case: In Progress -->
-                    <button th:if="${ses.status == 'IN_PROGRESS'}" type="button" class="btn-action-large btn-join-active">
+                    <button th:if="${ses.status == 'IN_PROGRESS'}" type="button"
+                            class="btn-action-large btn-join-active">
                         <i class="fa-solid fa-eye"></i> Spectate Now
                     </button>
 

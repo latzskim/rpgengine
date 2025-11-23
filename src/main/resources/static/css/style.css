@@ -822,3 +822,17 @@ input[type="datetime-local"]::-webkit-calendar-picker-indicator:hover {
     background: var(--accent-red);
     color: var(--bg-dark);
 }
+
+.tag-you {
+    display: inline-block;
+    font-size: 0.6rem;
+    background: var(--primary); /* Gold background */
+    color: var(--bg-dark);     /* Dark text */
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-left: 8px;
+    font-weight: 800;
+    text-transform: uppercase;
+    vertical-align: middle;
+    box-shadow: 0 0 5px var(--primary-glow);
+}

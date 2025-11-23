@@ -81,13 +81,16 @@ class SessionViewQueryService implements SessionViewQueryServicePort {
                 session,
                 pendingInvites,
                 approvedPlayers,
-                canJoin(userId, session)
+                new SessionViewModel.Permissions(
+                        canJoin(userId, session),
+                        session.getOwnerId().equals(userId)
+                )
         );
     }
 
     private static Boolean canJoin(UserId userId, SessionReadModel session) {
-        return session.getPendingInvites().contains(userId.getUserId().toString())
-                ||  session.getApprovedPlayers().contains(userId.getUserId().toString());
+        return !session.getPendingInvites().contains(userId.getUserId().toString())
+                && !session.getApprovedPlayers().contains(userId.getUserId().toString());
     }
 
     private List<UserViewModel> userViewModelsOf(String ids) {

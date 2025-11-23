@@ -38,6 +38,7 @@ public class SessionReadModel {
     @Column(name = "description")
     private String description;
 
+    @Setter
     @Column(name = "approved_players", nullable = false, columnDefinition = "varchar(1024)")
     private String approvedPlayers = ""; // Veeeery simple for now :)
 
