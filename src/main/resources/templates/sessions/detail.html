@@ -32,10 +32,10 @@
 
         <!-- GM Info in Hero -->
         <div class="gm-info">
-            <img th:src="${ses.ownerAvatarUrl} ?: @{../images/gm_avatar.png}" alt="GM" class="gm-avatar" style="width:40px; height:40px;">
+            <img th:src="${ses.owner.avatarUrl} ?: @{../images/gm_avatar.png}" alt="GM" class="gm-avatar" style="width:40px; height:40px;">
             <div>
                 <span class="gm-label" style="color: #ccc;">Gamemaster</span>
-                <span class="gm-name" style="font-size: 1.1rem;" th:text="${ses.ownerDisplayName}">GM Name</span>
+                <span class="gm-name" style="font-size: 1.1rem;" th:text="${ses.owner.displayName}">GM Name</span>
             </div>
         </div>
     </div>
@@ -82,36 +82,15 @@
                 <div class="sidebar-section">
                     <div style="display:flex; justify-content:space-between; align-items: baseline;">
                         <span class="sidebar-label">Party Composition</span>
-                        <span style="font-size: 0.9rem; color: var(--primary);" th:text="|${ses.approvedPlayers}/${ses.maxPlayers} Filled|">2/5</span>
+                        <span style="font-size: 0.9rem; color: var(--primary);" th:text="|${ses.approvedPlayers.size()}/${ses.maxPlayers} Filled|">2/5</span>
                     </div>
 
-                    <!-- MOCK DATA: Player List (Pure HTML as requested) -->
                     <div class="player-list">
-
-                        <!-- Mock Player 1 -->
-                        <div class="player-row">
-                            <img th:src="@{../images/player_avatar.png}" class="player-avatar-small" alt="Player">
+                        <div class="player-row" th:each="player : ${ses.approvedPlayers}">
+                            <img th:src="${player.avatarUrl} ?: @{../images/player_avatar.png}" class="player-avatar-small" alt="Player">
                             <div class="player-info">
-                                <span class="player-name">NightShade</span>
+                                <span class="player-name" th:text="${player.displayName}">NightShade</span>
                                 <span class="player-class">Lvl 4 Rogue</span>
-                            </div>
-                        </div>
-
-                        <!-- Mock Player 2 -->
-                        <div class="player-row">
-                            <img th:src="@{../images/player_avatar.png}" class="player-avatar-small" alt="Player">
-                            <div class="player-info">
-                                <span class="player-name">MerlinTheGrey</span>
-                                <span class="player-class">Lvl 5 Wizard</span>
-                            </div>
-                        </div>
-
-                        <!-- Mock Player 3 -->
-                        <div class="player-row">
-                            <img th:src="@{../images/player_avatar.png}" class="player-avatar-small" alt="Player">
-                            <div class="player-info">
-                                <span class="player-name">IronClad</span>
-                                <span class="player-class">Lvl 5 Fighter</span>
                             </div>
                         </div>
 
@@ -129,9 +108,36 @@
                     </div>
                     <!-- End Mock Data -->
 
-                    <p th:if="${ses.pendingInvites > 0}" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 15px;">
-                        <i class="fa-solid fa-envelope"></i> <span th:text="${ses.pendingInvites}">0</span> pending request(s)
-                    </p>
+                    <div class="pending-section" th:if="${not #lists.isEmpty(ses.pendingInvites)}">
+                        <div style="display:flex; justify-content:space-between; align-items: center; margin-bottom: 0.8rem;">
+                            <span class="sidebar-label" style="margin-bottom:0; color: var(--primary);">Pending Requests</span>
+                            <span class="sidebar-label" style="margin-bottom:0;" th:text="${ses.pendingInvites.size()}">1</span>
+                        </div>
+
+                        <div class="pending-list">
+                            <div class="pending-row" th:each="invite : ${ses.pendingInvites}">
+
+                                <div class="pending-user-info">
+                                    <img th:src="${invite.avatarUrl} ?: @{/images/player_avatar.png}" class="pending-avatar" alt="Avatar">
+                                    <span class="pending-name" th:text="${invite.displayName}">Player Name</span>
+                                </div>
+
+                                <div class="pending-actions">
+                                    <form th:action="@{/sessions/{sessionId}/requests/{userId}/approve(sessionId=${ses.id}, userId=${invite.id})}" method="post">
+                                        <button type="submit" class="btn-icon-action btn-approve" title="Approve">
+                                            <i class="fa-solid fa-check"></i>
+                                        </button>
+                                    </form>
+
+                                    <form th:action="@{/sessions/{sessionId}/requests/{userId}/reject(sessionId=${ses.id}, userId=${invite.id})}" method="post">
+                                        <button type="submit" class="btn-icon-action btn-reject" title="Reject">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <!-- Action Button -->
@@ -144,7 +150,7 @@
 
                     <!-- Case: Scheduled & Open Slots -->
                     <button
-                            th:if="${ses.status != 'IN_PROGRESS' and ses.approvedPlayers < ses.maxPlayers}"
+                            th:if="${ses.status != 'IN_PROGRESS' and ses.approvedPlayers.size() < ses.maxPlayers}"
                             type="submit"
                             class="btn-action-large btn-join-active"
                     >
@@ -152,7 +158,7 @@
                     </button>
 
                     <!-- Case: Full -->
-                    <button th:if="${ses.status != 'IN_PROGRESS' and ses.approvedPlayers >= ses.maxPlayers}"
+                    <button th:if="${ses.status != 'IN_PROGRESS' and ses.approvedPlayers.size() >= ses.maxPlayers}"
                             type="button" disabled class="btn-action-large btn-disabled">
                         Session Full
                     </button>

@@ -71,7 +71,8 @@ class SessionCommandService implements SessionCommandServicePort {
         session.join(joinSessionCommand.userId(), joinPolicy);
 
         sessionRepositoryPort.save(session);
-        // TODO: events
+
+        session.getDomainEvents().forEach(eventPublisher::publishEvent);
     }
 
     @Override

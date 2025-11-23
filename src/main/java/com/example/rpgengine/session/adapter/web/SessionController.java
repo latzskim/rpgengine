@@ -1,5 +1,7 @@
 package com.example.rpgengine.session.adapter.web;
 
+import com.example.rpgengine.session.domain.exception.SessionForbiddenException;
+import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
 import com.example.rpgengine.session.domain.exception.SessionValidationException;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
@@ -86,13 +88,24 @@ class SessionController {
 
     @GetMapping("/{id}")
     String sessionDetail(@PathVariable String id, Model model, Principal principal) {
-        return getSessionUser(principal).map(sessionUser -> {
-            var sessionReadModel = sessionViewQueryServicePort.getSessionsByUserId(
-                    sessionUser.id()
-            ).stream().filter(session -> session.id().equals(id)).findFirst().get();
-            model.addAttribute("ses", sessionReadModel);
+        try {
+            var userIdOrNull = getSessionUser(principal).map(SessionUser::id).orElse(null);
+
+            var detail = sessionViewQueryServicePort.getSessionByUserId(
+                    SessionId.fromString(id),
+                    userIdOrNull
+            );
+
+            model.addAttribute("ses", detail);
             return "sessions/detail";
-        }).orElse(ACCESS_DENIED);
+        } catch (SessionNotFoundException e) {
+            // TODO:
+        } catch (SessionForbiddenException e) {
+            // TODO: ?
+            return ACCESS_DENIED;
+        }
+
+        return ACCESS_DENIED;
     }
 
     @PostMapping("/{id}/join")

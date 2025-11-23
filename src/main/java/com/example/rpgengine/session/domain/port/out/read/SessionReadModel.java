@@ -1,13 +1,14 @@
 package com.example.rpgengine.session.domain.port.out.read;
 
+import com.example.rpgengine.session.domain.JoinRequest;
 import com.example.rpgengine.session.domain.valueobject.*;
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
 
 @Entity
 @Table(name = "session_read_model")
@@ -37,11 +38,12 @@ public class SessionReadModel {
     @Column(name = "description")
     private String description;
 
-    @Column(name = "approved_players")
-    private int approvedPlayers = 0;
+    @Column(name = "approved_players", nullable = false, columnDefinition = "varchar(1024)")
+    private String approvedPlayers = ""; // Veeeery simple for now :)
 
-    @Column(name = "pending_invites")
-    private int pendingInvites = 0;
+    @Setter
+    @Column(name = "pending_invites", nullable = false, columnDefinition = "varchar(1024)")
+    private String pendingInvites = ""; // Veeeery simple for now :)
 
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility")

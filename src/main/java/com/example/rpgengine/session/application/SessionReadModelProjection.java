@@ -1,7 +1,9 @@
 package com.example.rpgengine.session.application;
 
 import com.example.rpgengine.session.domain.event.SessionCreated;
+import com.example.rpgengine.session.domain.event.SessionUserJoinRequested;
 import com.example.rpgengine.session.domain.exception.SessionInvalidUserException;
+import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
 import com.example.rpgengine.session.domain.port.out.read.SessionReadModel;
 import com.example.rpgengine.session.domain.port.out.read.SessionReadModelRepositoryPort;
 import com.example.rpgengine.session.domain.port.out.read.SessionUserReadModelRepositoryPort;
@@ -29,7 +31,7 @@ class SessionReadModelProjection {
 
     @EventListener
     void on(SessionCreated event) {
-        var sessionUser = sessionUserReadModelRepositoryPort
+        var sessionOwner = sessionUserReadModelRepositoryPort
                 .findById(event.ownerId())
                 .orElseThrow(SessionInvalidUserException::new);
 
@@ -38,17 +40,34 @@ class SessionReadModelProjection {
                 .title(event.title())
                 .description(event.description())
                 .ownerId(event.ownerId())
-                .owner(sessionUser)
-                .approvedPlayers(0)
-                .pendingInvites(0)
+                .owner(sessionOwner)
                 .status(SessionStatus.DRAFT) // TODO: should be in event?
                 .startDate(event.startDate())
                 .visibility(event.visibility())
                 .difficulty(event.difficulty())
+                .approvedPlayers("")
+                .pendingInvites("")
                 .estimatedDurationInMinutes(event.estimatedDurationInMinutes())
                 .build();
 
         sessionReadModelRepositoryPort.save(sessionReadModel);
+    }
+
+    @EventListener
+    void on(SessionUserJoinRequested event) {
+        var requestToJoinUser = sessionUserReadModelRepositoryPort
+                .findById(event.userId())
+                .orElseThrow(SessionInvalidUserException::new);
+
+        var session = sessionReadModelRepositoryPort.findById(event.sessionId())
+                .orElseThrow(SessionNotFoundException::new);
+
+        var modifiedInvites = session.getPendingInvites() +
+                requestToJoinUser.getId().getUserId().toString() +
+                "#";
+
+        session.setPendingInvites(modifiedInvites);
+        sessionReadModelRepositoryPort.save(session);
     }
 
     @EventListener
