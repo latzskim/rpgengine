@@ -4,7 +4,7 @@ import com.example.rpgengine.session.domain.exception.InvalidInvitationCodeExcep
 import com.example.rpgengine.session.domain.valueobject.UserId;
 
 public class AllowJoinPolicy implements JoinPolicy {
-    private String inviteCode;
+    private final String inviteCode;
 
     protected AllowJoinPolicy(String inviteCode) {
         this.inviteCode = inviteCode;

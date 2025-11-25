@@ -27,11 +27,9 @@ import static java.lang.String.format;
 @Service
 class SessionViewQueryService implements SessionViewQueryServicePort {
     private final SessionReadModelRepositoryPort sessionReadModelRepositoryPort;
-    private final SessionUserReadModelRepositoryPort sessionUserReadModelRepositoryPort;
 
-    SessionViewQueryService(SessionReadModelRepositoryPort sessionReadModelRepositoryPort, SessionUserReadModelRepositoryPort sessionUserReadModelRepositoryPort) {
+    SessionViewQueryService(SessionReadModelRepositoryPort sessionReadModelRepositoryPort) {
         this.sessionReadModelRepositoryPort = sessionReadModelRepositoryPort;
-        this.sessionUserReadModelRepositoryPort = sessionUserReadModelRepositoryPort;
     }
 
     @Override
@@ -74,8 +72,12 @@ class SessionViewQueryService implements SessionViewQueryServicePort {
             throw new SessionForbiddenException("Only owners can edit draft sessions");
         }
 
-        List<UserViewModel> pendingInvites = userViewModelsOf(session.getPendingInvites());
-        List<UserViewModel> approvedPlayers = userViewModelsOf(session.getApprovedPlayers());
+        List<UserViewModel> pendingInvites = session.getPendingInvites().stream()
+                .map(UserViewModel::fromReadModel)
+                .toList();
+        List<UserViewModel> approvedPlayers = session.getApprovedPlayers().stream()
+                .map(UserViewModel::fromReadModel)
+                .toList();
 
         return SessionViewModel.from(
                 session,
@@ -90,23 +92,15 @@ class SessionViewQueryService implements SessionViewQueryServicePort {
     }
 
     private static Boolean canJoin(UserId userId, SessionReadModel session) {
-        return !session.getPendingInvites().contains(userId.getUserId().toString())
-                && !session.getApprovedPlayers().contains(userId.getUserId().toString());
+        boolean isPending = session.getPendingInvites().stream()
+                .anyMatch(u -> u.getId().equals(userId));
+        boolean isApproved = session.getApprovedPlayers().stream()
+                .anyMatch(u -> u.getId().equals(userId));
+
+        return !isPending && !isApproved;
     }
 
-    private List<UserViewModel> userViewModelsOf(String ids) {
-        if (ids.isEmpty()) {
-            return List.of();
-        }
 
-        return Arrays.stream(ids.split("#")).
-                map(UserId::fromString).
-                map(sessionUserReadModelRepositoryPort::findById).
-                filter(Optional::isPresent).
-                map(Optional::get).
-                map(UserViewModel::fromReadModel).
-                toList();
-    }
 
     private static PageRequest buildPage(int page, int elements, SortBy sortBy) {
         Sort s = switch (sortBy.sortDirection()) {

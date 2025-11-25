@@ -38,13 +38,23 @@ public class SessionReadModel {
     @Column(name = "description")
     private String description;
 
-    @Setter
-    @Column(name = "approved_players", nullable = false, columnDefinition = "varchar(1024)")
-    private String approvedPlayers = ""; // Veeeery simple for now :)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "session_approved_players",
+            joinColumns = @JoinColumn(name = "session_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @Builder.Default
+    private Set<UserReadModel> approvedPlayers = new HashSet<>();
 
-    @Setter
-    @Column(name = "pending_invites", nullable = false, columnDefinition = "varchar(1024)")
-    private String pendingInvites = ""; // Veeeery simple for now :)
+    @ManyToMany(fetch = FetchType.EAGER)
+    @JoinTable(
+            name = "session_pending_invites",
+            joinColumns = @JoinColumn(name = "session_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    @Builder.Default
+    private Set<UserReadModel> pendingInvites = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility")

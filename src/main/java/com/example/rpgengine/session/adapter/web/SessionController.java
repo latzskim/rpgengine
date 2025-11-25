@@ -13,8 +13,6 @@ import com.example.rpgengine.session.domain.port.out.UserPort;
 import com.example.rpgengine.session.domain.valueobject.SessionId;
 import com.example.rpgengine.session.domain.valueobject.SessionUser;
 import com.example.rpgengine.session.domain.valueobject.UserId;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -158,10 +156,10 @@ class SessionController {
         }).orElse(ACCESS_DENIED);
     }
 
-    @PostMapping("/{id}/schedule")
-    String scheduleSession() {
-
-    }
+//    @PostMapping("/{id}/schedule")
+//    String scheduleSession() {
+//
+//    }
 
 
     private Optional<SessionUser> getSessionUser(Principal principal) {
