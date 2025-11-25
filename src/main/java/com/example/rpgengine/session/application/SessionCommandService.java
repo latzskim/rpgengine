@@ -113,6 +113,6 @@ class SessionCommandService implements SessionCommandServicePort {
         session.delete();
         sessionRepositoryPort.delete(session);
 
-        // TODO: events
+        session.getDomainEvents().forEach(eventPublisher::publishEvent);
     }
 }

@@ -1,9 +1,6 @@
 package com.example.rpgengine.session.application;
 
-import com.example.rpgengine.session.domain.event.SessionCreated;
-import com.example.rpgengine.session.domain.event.SessionUserJoinRequested;
-import com.example.rpgengine.session.domain.event.SessionUserJoined;
-import com.example.rpgengine.session.domain.event.SessionUserRejected;
+import com.example.rpgengine.session.domain.event.*;
 import com.example.rpgengine.session.domain.exception.SessionInvalidUserException;
 import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
 import com.example.rpgengine.session.domain.port.out.read.SessionReadModel;
@@ -69,6 +66,11 @@ class SessionReadModelProjection {
 
         session.setPendingInvites(modifiedInvites);
         sessionReadModelRepositoryPort.save(session);
+    }
+
+    @EventListener
+    void on (SessionStatusEvent.SessionHardDeleted event) {
+        sessionReadModelRepositoryPort.deleteById(event.id());
     }
 
     @EventListener

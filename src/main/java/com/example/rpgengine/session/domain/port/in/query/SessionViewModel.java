@@ -24,7 +24,8 @@ public record SessionViewModel(
 
     public record Permissions(
             Boolean canJoin,
-            Boolean isOwner
+            Boolean isOwner,
+            Boolean canEdit
     ) {
     }
 

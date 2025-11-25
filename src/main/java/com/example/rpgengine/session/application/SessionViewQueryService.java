@@ -83,7 +83,8 @@ class SessionViewQueryService implements SessionViewQueryServicePort {
                 approvedPlayers,
                 new SessionViewModel.Permissions(
                         canJoin(userId, session),
-                        session.getOwnerId().equals(userId)
+                        session.getOwnerId().equals(userId),
+                        session.getOwnerId().equals(userId) && session.getStatus().equals(SessionStatus.DRAFT)
                 )
         );
     }

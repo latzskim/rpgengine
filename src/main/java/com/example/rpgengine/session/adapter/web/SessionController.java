@@ -6,6 +6,7 @@ import com.example.rpgengine.session.domain.exception.SessionValidationException
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
 import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
+import com.example.rpgengine.session.domain.port.in.command.DeleteSessionCommand;
 import com.example.rpgengine.session.domain.port.in.command.HandleUserJoinSessionDecisionCommand;
 import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
 import com.example.rpgengine.session.domain.port.out.UserPort;
@@ -55,6 +56,17 @@ class SessionController {
                     null
             ));
             return "sessions/create";
+        }).orElse(ACCESS_DENIED);
+    }
+
+    @PostMapping("/{id}/delete")
+    String deleteSession(@PathVariable String id, Principal principal) {
+        return getSessionUser(principal).map(sessionUser -> {
+            sessionCommandServicePort.deleteSession(new DeleteSessionCommand(
+                    SessionId.fromString(id),
+                    sessionUser.id()
+            ));
+            return "redirect:/";
         }).orElse(ACCESS_DENIED);
     }
 
@@ -144,6 +156,11 @@ class SessionController {
             ));
             return "redirect:/sessions/" + id;
         }).orElse(ACCESS_DENIED);
+    }
+
+    @PostMapping("/{id}/schedule")
+    String scheduleSession() {
+
     }
 
 
