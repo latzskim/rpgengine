@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Create New Session - Mythos</title>
+    <title>Edit Session - Mythos</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
@@ -22,11 +22,12 @@
 <div class="container" style="margin-top: -100px; position: relative; z-index: 10;">
 
     <div class="form-container">
-        <form class="form-card" th:action="@{/sessions}" th:object="${createSessionCommand}" method="post">
+        <!-- Note the action URL is different: /sessions/{id}/edit -->
+        <form class="form-card" th:action="@{/sessions/{id}/edit(id=${sessionId})}" th:object="${updateSessionCommand}" method="post">
 
             <div class="form-header">
-                <h2>Summon New Session</h2>
-                <p>Define the parameters of your next adventure.</p>
+                <h2>Edit Session</h2>
+                <p>Modify the parameters of your adventure.</p>
             </div>
 
             <!-- Error Message Block -->
@@ -93,8 +94,8 @@
 
                 <!-- Actions -->
                 <div class="form-actions">
-                    <a href="/" class="btn-cancel">Cancel</a>
-                    <button type="submit" class="btn-submit">Create Session</button>
+                    <a th:href="@{/sessions/{id}(id=${sessionId})}" class="btn-cancel">Cancel</a>
+                    <button type="submit" class="btn-submit">Save Changes</button>
                 </div>
 
             </div>

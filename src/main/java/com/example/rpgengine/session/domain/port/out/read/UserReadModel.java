@@ -6,10 +6,7 @@ import jakarta.persistence.Column;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
+import lombok.*;
 import org.hibernate.annotations.Immutable;
 
 
@@ -20,6 +17,7 @@ import org.hibernate.annotations.Immutable;
 @NoArgsConstructor
 @AllArgsConstructor
 @Immutable
+@EqualsAndHashCode
 public class UserReadModel {
     @EmbeddedId
     private UserId id;

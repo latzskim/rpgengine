@@ -142,6 +142,44 @@ public class Session {
         ));
     }
 
+    public void update(
+            String title,
+            String description,
+            LocalDateTime startDate,
+            Duration duration,
+            DifficultyLevel difficulty,
+            Visibility visibility,
+            Integer minPlayers,
+            Integer maxPlayers
+    ) {
+        if (this.status != SessionStatus.DRAFT) {
+            throw new SessionStatusException(format("cannot update session in status: %s", this.status));
+        }
+
+        validatePlayersRange(minPlayers, maxPlayers);
+
+        this.title = title;
+        this.description = description;
+        this.startDate = startDate;
+        this.estimatedDurationInMinutes = duration.toMinutes();
+        this.difficulty = difficulty;
+        this.visibility = visibility;
+        this.minPlayers = minPlayers;
+        this.maxPlayers = maxPlayers;
+
+        this.domainEvents.add(new SessionUpdated(
+                this.id,
+                this.title,
+                this.description,
+                this.startDate,
+                this.estimatedDurationInMinutes,
+                this.difficulty,
+                this.visibility,
+                this.minPlayers,
+                this.maxPlayers
+        ));
+    }
+
     private static void validatePlayersRange(Integer minPlayers, Integer maxPlayers) {
         if (minPlayers == null || minPlayers < MIN_PLAYERS_EXCLUDING_GM) {
             throw new SessionValidationException(format("minPlayers can't be less than %d", MIN_PLAYERS_EXCLUDING_GM));

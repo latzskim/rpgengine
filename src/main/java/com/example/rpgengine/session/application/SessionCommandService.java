@@ -6,10 +6,7 @@ import com.example.rpgengine.session.domain.exception.SessionForbiddenException;
 import com.example.rpgengine.session.domain.exception.SessionInvalidUserException;
 import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
-import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
-import com.example.rpgengine.session.domain.port.in.command.DeleteSessionCommand;
-import com.example.rpgengine.session.domain.port.in.command.HandleUserJoinSessionDecisionCommand;
-import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
+import com.example.rpgengine.session.domain.port.in.command.*;
 import com.example.rpgengine.session.domain.port.out.SessionRepositoryPort;
 import com.example.rpgengine.session.domain.port.out.UserPort;
 import com.example.rpgengine.session.domain.valueobject.SessionId;
@@ -97,6 +94,57 @@ class SessionCommandService implements SessionCommandServicePort {
     }
 
     @Override
+    public void updateSession(UpdateSessionCommand cmd) {
+        var sessionUser = userPort
+                .getById(cmd.ownerId())
+                .orElseThrow(SessionInvalidUserException::new);
+
+        var session = sessionRepositoryPort
+                .findById(cmd.sessionId())
+                .orElseThrow(SessionNotFoundException::new);
+
+        if (!session.isOwner(sessionUser.id())) {
+            throw new SessionForbiddenException("only owner can update session");
+        }
+
+        session.update(
+                cmd.title(),
+                cmd.description(),
+                cmd.startDate(),
+                Duration.ofMinutes((long) cmd.durationInMinutes()),
+                cmd.difficultyLevel(),
+                cmd.visibility(),
+                cmd.minPlayers(),
+                cmd.maxPlayers()
+        );
+
+        sessionRepositoryPort.save(session);
+
+        session.getDomainEvents().forEach(eventPublisher::publishEvent);
+    }
+
+    @Override
+    public void scheduleSession(ScheduleSessionCommand cmd) {
+        var sessionUser = userPort
+                .getById(cmd.userId())
+                .orElseThrow(SessionInvalidUserException::new);
+
+        var session = sessionRepositoryPort
+                .findById(cmd.id())
+                .orElseThrow(SessionNotFoundException::new);
+
+        if (!session.isOwner(sessionUser.id())) {
+            throw new SessionForbiddenException("only owner can schedule session");
+        }
+
+        session.scheduleSession();
+
+        sessionRepositoryPort.save(session);
+
+        session.getDomainEvents().forEach(eventPublisher::publishEvent);
+    }
+
+    @Override
     public void deleteSession(DeleteSessionCommand deleteSessionCommand) {
         var sessionUser = userPort
                 .getById(deleteSessionCommand.userId())
@@ -113,6 +161,6 @@ class SessionCommandService implements SessionCommandServicePort {
         session.delete();
         sessionRepositoryPort.delete(session);
 
-        // TODO: events
+        session.getDomainEvents().forEach(eventPublisher::publishEvent);
     }
 }

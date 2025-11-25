@@ -29,8 +29,8 @@ public record SessionListViewModel(
                 s.getDifficulty().toString(),
                 s.getStartDate(),
                 s.getEstimatedDurationInMinutes(),
-                s.getApprovedPlayers().split("#").length,
-                s.getPendingInvites().split("#").length,
+                s.getApprovedPlayers().size(),
+                s.getPendingInvites().size(),
                 Session.MIN_PLAYERS_EXCLUDING_GM,
                 Session.MAX_PLAYERS_EXCLUDING_GM
         );

@@ -218,6 +218,76 @@ class SessionTest {
 
 
     @Test
+    public void shouldBeAbleToUpdateDraftSession() {
+        // given:
+        var session = makePublicSession();
+        var newTitle = "New Title";
+        var newDescription = "New Description";
+        var newStartDate = LocalDateTime.now().plusDays(2);
+        var newDuration = Duration.ofHours(4);
+        var newDifficulty = DifficultyLevel.HARD;
+        var newVisibility = Visibility.PRIVATE;
+        var newMinPlayers = 3;
+        var newMaxPlayers = 8;
+
+        // when:
+        session.update(
+                newTitle,
+                newDescription,
+                newStartDate,
+                newDuration,
+                newDifficulty,
+                newVisibility,
+                newMinPlayers,
+                newMaxPlayers
+        );
+
+        // then:
+        assertThat(session.getTitle()).isEqualTo(newTitle);
+        assertThat(session.getDescription()).isEqualTo(newDescription);
+        assertThat(session.getStartDate()).isEqualTo(newStartDate);
+        assertThat(session.getEstimatedDurationInMinutes()).isEqualTo(newDuration.toMinutes());
+        assertThat(session.getDifficulty()).isEqualTo(newDifficulty);
+        assertThat(session.getVisibility()).isEqualTo(newVisibility);
+        assertThat(session.getMinPlayers()).isEqualTo(newMinPlayers);
+        assertThat(session.getMaxPlayers()).isEqualTo(newMaxPlayers);
+
+        var event = getDomainEvent(session.getDomainEvents(), SessionUpdated.class);
+        assertThat(event).isPresent();
+        assertThat(event.get().title()).isEqualTo(newTitle);
+    }
+
+    @Test
+    public void shouldThrowSessionStatusExceptionWhenUpdatingNonDraftSession() {
+        // given:
+        var session = makePublicSession();
+        session.scheduleSession();
+
+        // when & then:
+        assertThrows(SessionStatusException.class, () -> session.update(
+                "Title", "Desc", LocalDateTime.now(), Duration.ofHours(1),
+                DifficultyLevel.EASY, Visibility.PUBLIC, 2, 5
+        ));
+    }
+
+    @Test
+    public void shouldThrowSessionValidationExceptionWhenUpdatingWithInvalidPlayerRange() {
+        // given:
+        var session = makePublicSession();
+
+        // when & then:
+        assertThrows(SessionValidationException.class, () -> session.update(
+                "Title", "Desc", LocalDateTime.now(), Duration.ofHours(1),
+                DifficultyLevel.EASY, Visibility.PUBLIC, invalidMinPlayers, 5
+        ));
+
+        assertThrows(SessionValidationException.class, () -> session.update(
+                "Title", "Desc", LocalDateTime.now(), Duration.ofHours(1),
+                DifficultyLevel.EASY, Visibility.PUBLIC, 2, invalidMaxPlayers
+        ));
+    }
+
+    @Test
     public void shouldScheduleDraftSession() {
         // given:
         var session = makePublicSession();

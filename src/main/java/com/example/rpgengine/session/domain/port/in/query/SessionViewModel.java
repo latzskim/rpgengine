@@ -3,6 +3,8 @@ package com.example.rpgengine.session.domain.port.in.query;
 import com.example.rpgengine.session.domain.Session;
 import com.example.rpgengine.session.domain.port.out.read.SessionReadModel;
 
+import com.example.rpgengine.session.domain.valueobject.Visibility;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -13,6 +15,7 @@ public record SessionViewModel(
         UserViewModel owner,
         String description,
         String difficulty,
+        Visibility visibility,
         LocalDateTime startDate,
         Long durationInMinutes,
         List<UserViewModel> approvedPlayers,
@@ -24,7 +27,8 @@ public record SessionViewModel(
 
     public record Permissions(
             Boolean canJoin,
-            Boolean isOwner
+            Boolean isOwner,
+            Boolean canEdit
     ) {
     }
 
@@ -42,6 +46,7 @@ public record SessionViewModel(
                 UserViewModel.fromReadModel(session.getOwner()),
                 session.getDescription(),
                 session.getDifficulty().toString(),
+                session.getVisibility(),
                 session.getStartDate(),
                 session.getEstimatedDurationInMinutes(),
                 approvedPlayers,
