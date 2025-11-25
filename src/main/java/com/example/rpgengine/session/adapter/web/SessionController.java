@@ -2,17 +2,13 @@ package com.example.rpgengine.session.adapter.web;
 
 import com.example.rpgengine.session.domain.exception.SessionForbiddenException;
 import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
+import com.example.rpgengine.session.domain.exception.SessionStatusException;
 import com.example.rpgengine.session.domain.exception.SessionValidationException;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
-import com.example.rpgengine.session.domain.port.in.command.CreateSessionCommand;
-import com.example.rpgengine.session.domain.port.in.command.DeleteSessionCommand;
-import com.example.rpgengine.session.domain.port.in.command.HandleUserJoinSessionDecisionCommand;
-import com.example.rpgengine.session.domain.port.in.command.JoinSessionCommand;
+import com.example.rpgengine.session.domain.port.in.command.*;
 import com.example.rpgengine.session.domain.port.out.UserPort;
-import com.example.rpgengine.session.domain.valueobject.SessionId;
-import com.example.rpgengine.session.domain.valueobject.SessionUser;
-import com.example.rpgengine.session.domain.valueobject.UserId;
+import com.example.rpgengine.session.domain.valueobject.*;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +38,7 @@ class SessionController {
     @GetMapping("/create")
     String createForm(Principal principal, Model model) {
         return getSessionUser(principal).map(sessionUser -> {
-            model.addAttribute("createSessionCommand", new CreateSessionCommand(
-                    sessionUser.id(),
+            model.addAttribute("createSessionCommand", new CreateSessionForm(
                     "",
                     "",
                     null,
@@ -54,6 +49,72 @@ class SessionController {
                     null
             ));
             return "sessions/create";
+        }).orElse(ACCESS_DENIED);
+    }
+
+    @GetMapping("/{id}/edit")
+    String editForm(@PathVariable String id, Principal principal, Model model) {
+        return getSessionUser(principal).map(sessionUser -> {
+            var sessionId = SessionId.fromString(id);
+            var session = sessionViewQueryServicePort.getSessionByUserId(sessionId, sessionUser.id());
+
+            var form = new UpdateSessionForm(
+                    session.title(),
+                    session.description(),
+                    session.startDate(),
+                    session.durationInMinutes().intValue(),
+                    DifficultyLevel.valueOf(session.difficulty()),
+                    Visibility.valueOf(session.visibility().name()),
+                    session.minPlayers(),
+                    session.maxPlayers()
+            );
+
+            model.addAttribute("updateSessionCommand", form);
+            model.addAttribute("sessionId", id);
+
+            return "sessions/edit";
+        }).orElse(ACCESS_DENIED);
+    }
+
+    @PostMapping("/{id}/edit")
+    String updateSession(
+            @PathVariable String id,
+            @ModelAttribute("updateSessionCommand") UpdateSessionForm form,
+            Principal principal,
+            Model model
+    ) {
+        return getSessionUser(principal).map(sessionUser -> {
+            try {
+                sessionCommandServicePort.updateSession(new UpdateSessionCommand(
+                        SessionId.fromString(id),
+                        sessionUser.id(),
+                        form.getTitle(),
+                        form.getDescription(),
+                        form.getStartDate(),
+                        form.getDurationInMinutes(),
+                        form.getDifficultyLevel(),
+                        form.getVisibility(),
+                        form.getMinPlayers(),
+                        form.getMaxPlayers()
+                ));
+                return "redirect:/sessions/" + id;
+            } catch (SessionValidationException | SessionStatusException e) {
+                model.addAttribute("errorMessage", e.getMessage());
+                model.addAttribute("updateSessionCommand", form);
+                model.addAttribute("sessionId", id);
+                return "sessions/edit";
+            }
+        }).orElse(ACCESS_DENIED);
+    }
+
+    @PostMapping("/{id}/schedule")
+    String scheduleSession(@PathVariable String id, Principal principal) {
+        return getSessionUser(principal).map(sessionUser -> {
+            sessionCommandServicePort.scheduleSession(new com.example.rpgengine.session.domain.port.in.command.ScheduleSessionCommand(
+                    SessionId.fromString(id),
+                    sessionUser.id()
+            ));
+            return "redirect:/sessions/" + id;
         }).orElse(ACCESS_DENIED);
     }
 
@@ -70,7 +131,7 @@ class SessionController {
 
     @PostMapping
     String createSession(
-            @ModelAttribute CreateSessionCommand command,
+            @ModelAttribute("createSessionCommand") CreateSessionForm form,
             Principal principal,
             Model model
     ) {
@@ -78,19 +139,20 @@ class SessionController {
             try {
                 var sessionId = sessionCommandServicePort.createSession(new CreateSessionCommand(
                         sessionUser.id(),
-                        command.title(),
-                        command.description(),
-                        command.startDate(),
-                        command.durationInMinutes(),
-                        command.difficultyLevel(),
-                        command.visibility(),
-                        command.minPlayers(),
-                        command.maxPlayers()
+                        form.getTitle(),
+                        form.getDescription(),
+                        form.getStartDate(),
+                        form.getDurationInMinutes(),
+                        form.getDifficultyLevel(),
+                        form.getVisibility(),
+                        form.getMinPlayers(),
+                        form.getMaxPlayers()
                 ));
 
                 return "redirect:/sessions/" + sessionId.getId().toString();
             } catch (SessionValidationException e) {
                 model.addAttribute("errorMessage", e.getMessage());
+                model.addAttribute("createSessionCommand", form);
             }
 
             // TODO: catch exception + custom "something went wrong" page?

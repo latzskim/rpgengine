@@ -54,6 +54,33 @@ class SessionReadModelProjection {
     }
 
     @EventListener
+    void on(SessionUpdated event) {
+        var session = sessionReadModelRepositoryPort.findById(event.sessionId())
+                .orElseThrow(SessionNotFoundException::new);
+
+        session.setTitle(event.title());
+        session.setDescription(event.description());
+        session.setStartDate(event.startDate());
+        session.setEstimatedDurationInMinutes(event.estimatedDurationInMinutes());
+        session.setDifficulty(event.difficulty());
+        session.setVisibility(event.visibility());
+
+        // TODO: handle min/max players
+
+        sessionReadModelRepositoryPort.save(session);
+    }
+
+    @EventListener
+    void on(SessionStatusEvent.SessionScheduled event) {
+        var session = sessionReadModelRepositoryPort.findById(event.id())
+                .orElseThrow(SessionNotFoundException::new);
+
+        session.setStatus(SessionStatus.SCHEDULED);
+
+        sessionReadModelRepositoryPort.save(session);
+    }
+
+    @EventListener
     void on(SessionUserJoinRequested event) {
         var requestToJoinUser = sessionUserReadModelRepositoryPort
                 .findById(event.userId())

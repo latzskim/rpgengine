@@ -13,6 +13,7 @@ import java.util.Set;
 @Entity
 @Table(name = "session_read_model")
 @Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
