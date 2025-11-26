@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <body>
 <nav class="navbar" th:fragment="header">
     <div class="logo">
@@ -11,14 +11,20 @@
         <a href="#">Compendium</a>
         <a href="#">Community</a>
     </div>
-    <div th:if="${user != null}">
-        <!-- Logged in view -->
-        <span th:text="${user.username}" style="margin-right:1rem;">Player</span>
-        <button class="btn-primary">Log Out</button>
+
+
+    <div sec:authorize="isAuthenticated()" style="display: flex; align-items: center; gap: 1rem;">
+        <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <img th:src="@{/images/player_avatar.png}" alt="Avatar" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover; border: 1px solid var(--primary);">
+            <span sec:authentication="principal.displayName" style="font-weight: bold;">Player</span>
+        </div>
+        <form th:action="@{/logout}" method="post" style="margin: 0;">
+            <button type="submit" class="btn-primary">Log Out</button>
+        </form>
     </div>
-    <div th:unless="${user != null}">
-        <!-- Anonymous view -->
-        <button class="btn-primary">Sign In</button>
+    <div sec:authorize="!isAuthenticated()" style="display: flex; align-items: center; gap: 0.5rem;">
+        <a th:href="@{/login}" class="btn-primary" style="text-decoration: none;">Sign In</a>
+        <a th:href="@{/register}" class="btn-primary" style="text-decoration: none;">Register</a>
     </div>
 </nav>
 </body>
