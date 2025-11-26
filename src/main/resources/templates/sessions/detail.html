@@ -185,7 +185,7 @@
                         </form>
                     </div>
 
-                    <form th:if="${ses.permissions.canJoin == true and !ses.permissions.canEdit}"
+                    <form th:if="${ses.permissions.canJoin == true and !ses.permissions.canEdit and !ses.permissions.isOwner}"
                           th:action="@{/sessions/{id}/join(id=${ses.id})}"
                           method="post">
 
