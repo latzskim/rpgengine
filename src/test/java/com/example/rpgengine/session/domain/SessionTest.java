@@ -11,6 +11,7 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Stream;
 
@@ -165,7 +166,8 @@ class SessionTest {
                 DifficultyLevel.EASY,
                 Visibility.PUBLIC,
                 validMinPlayers,
-                validMaxPlayers
+                validMaxPlayers,
+                Set.of()
         );
 
         var userId = UserId.fromUUID(UUID.randomUUID());
@@ -187,7 +189,8 @@ class SessionTest {
                 DifficultyLevel.EASY,
                 Visibility.PUBLIC,
                 invalidMinPlayers, // invalid MIN
-                validMaxPlayers
+                validMaxPlayers,
+                Set.of()
         ));
 
         assertThrows(SessionValidationException.class, () -> new Session(
@@ -199,7 +202,8 @@ class SessionTest {
                 DifficultyLevel.EASY,
                 Visibility.PUBLIC,
                 validMinPlayers,
-                invalidMaxPlayers // invalid MAX
+                invalidMaxPlayers, // invalid MAX
+                Set.of()
         ));
 
         // MIN > MAX
@@ -212,7 +216,8 @@ class SessionTest {
                 DifficultyLevel.EASY,
                 Visibility.PUBLIC,
                 9,
-                8
+                8,
+                Set.of()
         ));
     }
 
@@ -229,6 +234,7 @@ class SessionTest {
         var newVisibility = Visibility.PRIVATE;
         var newMinPlayers = 3;
         var newMaxPlayers = 8;
+        var newRequirements = Set.of("req1");
 
         // when:
         session.update(
@@ -239,7 +245,8 @@ class SessionTest {
                 newDifficulty,
                 newVisibility,
                 newMinPlayers,
-                newMaxPlayers
+                newMaxPlayers,
+                newRequirements
         );
 
         // then:
@@ -251,6 +258,7 @@ class SessionTest {
         assertThat(session.getVisibility()).isEqualTo(newVisibility);
         assertThat(session.getMinPlayers()).isEqualTo(newMinPlayers);
         assertThat(session.getMaxPlayers()).isEqualTo(newMaxPlayers);
+        assertThat(session.getRequirements()).isEqualTo(newRequirements);
 
         var event = getDomainEvent(session.getDomainEvents(), SessionUpdated.class);
         assertThat(event).isPresent();
@@ -266,7 +274,7 @@ class SessionTest {
         // when & then:
         assertThrows(SessionStatusException.class, () -> session.update(
                 "Title", "Desc", LocalDateTime.now(), Duration.ofHours(1),
-                DifficultyLevel.EASY, Visibility.PUBLIC, 2, 5
+                DifficultyLevel.EASY, Visibility.PUBLIC, 2, 5, Set.of()
         ));
     }
 
@@ -278,12 +286,12 @@ class SessionTest {
         // when & then:
         assertThrows(SessionValidationException.class, () -> session.update(
                 "Title", "Desc", LocalDateTime.now(), Duration.ofHours(1),
-                DifficultyLevel.EASY, Visibility.PUBLIC, invalidMinPlayers, 5
+                DifficultyLevel.EASY, Visibility.PUBLIC, invalidMinPlayers, 5, Set.of()
         ));
 
         assertThrows(SessionValidationException.class, () -> session.update(
                 "Title", "Desc", LocalDateTime.now(), Duration.ofHours(1),
-                DifficultyLevel.EASY, Visibility.PUBLIC, 2, invalidMaxPlayers
+                DifficultyLevel.EASY, Visibility.PUBLIC, 2, invalidMaxPlayers, Set.of()
         ));
     }
 
@@ -432,7 +440,8 @@ class SessionTest {
                 DifficultyLevel.EASY,
                 Visibility.PRIVATE,
                 validMinPlayers,
-                validMaxPlayers
+                validMaxPlayers,
+                Set.of()
         );
     }
 
@@ -446,7 +455,8 @@ class SessionTest {
                 DifficultyLevel.EASY,
                 Visibility.PUBLIC,
                 validMinPlayers,
-                validMaxPlayers
+                validMaxPlayers,
+                Set.of()
         );
     }
 

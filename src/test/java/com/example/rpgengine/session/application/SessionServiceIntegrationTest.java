@@ -20,6 +20,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -80,7 +81,8 @@ class SessionServiceIntegrationTest {
                 DifficultyLevel.HARD,
                 Visibility.PUBLIC,
                 2,
-                6
+                6,
+                Set.of()
         );
 
         // when:
@@ -225,7 +227,8 @@ class SessionServiceIntegrationTest {
                 DifficultyLevel.HARD,
                 Visibility.PUBLIC,
                 2,
-                6
+                6,
+                Set.of()
         );
 
         var localSession = sessionCommandServicePort.createSession(cmd);
