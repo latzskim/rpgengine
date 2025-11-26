@@ -14,12 +14,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.Optional;
+import java.util.*;
 
 @Controller
 @RequestMapping("/sessions")
 class SessionController {
     public static final String ACCESS_DENIED = "access-denied";
+    private static final List<String> PREDEFINED_REQUIREMENTS = List.of("Microphone required", "18+ Only", "Discord");
 
     private final SessionCommandServicePort sessionCommandServicePort;
     private final SessionViewQueryServicePort sessionViewQueryServicePort;
@@ -46,7 +47,9 @@ class SessionController {
                     null,
                     null,
                     null,
-                    null
+                    null,
+                    new ArrayList<>(),
+                    ""
             ));
             return "sessions/create";
         }).orElse(ACCESS_DENIED);
@@ -58,6 +61,17 @@ class SessionController {
             var sessionId = SessionId.fromString(id);
             var session = sessionViewQueryServicePort.getSessionByUserId(sessionId, sessionUser.id());
 
+            var allReqs = new HashSet<>(session.requirements());
+            var formReqs = new ArrayList<String>();
+
+            for (String known : PREDEFINED_REQUIREMENTS) {
+                if (allReqs.contains(known)) {
+                    formReqs.add(known);
+                    allReqs.remove(known);
+                }
+            }
+            String customReqs = String.join(", ", allReqs);
+
             var form = new UpdateSessionForm(
                     session.title(),
                     session.description(),
@@ -66,7 +80,9 @@ class SessionController {
                     DifficultyLevel.valueOf(session.difficulty()),
                     Visibility.valueOf(session.visibility().name()),
                     session.minPlayers(),
-                    session.maxPlayers()
+                    session.maxPlayers(),
+                    formReqs,
+                    customReqs
             );
 
             model.addAttribute("updateSessionCommand", form);
@@ -85,6 +101,8 @@ class SessionController {
     ) {
         return getSessionUser(principal).map(sessionUser -> {
             try {
+                var mergedReqs = mergeRequirements(form.getRequirements(), form.getCustomRequirements());
+
                 sessionCommandServicePort.updateSession(new UpdateSessionCommand(
                         SessionId.fromString(id),
                         sessionUser.id(),
@@ -95,7 +113,8 @@ class SessionController {
                         form.getDifficultyLevel(),
                         form.getVisibility(),
                         form.getMinPlayers(),
-                        form.getMaxPlayers()
+                        form.getMaxPlayers(),
+                        mergedReqs
                 ));
                 return "redirect:/sessions/" + id;
             } catch (SessionValidationException | SessionStatusException e) {
@@ -105,6 +124,17 @@ class SessionController {
                 return "sessions/edit";
             }
         }).orElse(ACCESS_DENIED);
+    }
+
+    private Set<String> mergeRequirements(List<String> requirements, String customRequirements) {
+        Set<String> mergedReqs = new HashSet<>();
+        if (requirements != null) mergedReqs.addAll(requirements);
+
+        Arrays.stream(customRequirements.split(","))
+                .filter(s -> !s.trim().isEmpty())
+                .forEach(mergedReqs::add);
+
+        return mergedReqs;
     }
 
     @PostMapping("/{id}/schedule")
@@ -137,6 +167,8 @@ class SessionController {
     ) {
         return getSessionUser(principal).map(sessionUser -> {
             try {
+                var mergedReqs = mergeRequirements(form.getRequirements(), form.getCustomRequirements());
+
                 var sessionId = sessionCommandServicePort.createSession(new CreateSessionCommand(
                         sessionUser.id(),
                         form.getTitle(),
@@ -146,7 +178,8 @@ class SessionController {
                         form.getDifficultyLevel(),
                         form.getVisibility(),
                         form.getMinPlayers(),
-                        form.getMaxPlayers()
+                        form.getMaxPlayers(),
+                        mergedReqs
                 ));
 
                 return "redirect:/sessions/" + sessionId.getId().toString();

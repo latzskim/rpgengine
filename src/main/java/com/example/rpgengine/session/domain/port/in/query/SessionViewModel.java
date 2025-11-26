@@ -22,6 +22,7 @@ public record SessionViewModel(
         List<UserViewModel> pendingInvites,
         Integer minPlayers,
         Integer maxPlayers,
+        List<String> requirements,
         Permissions permissions
 ) {
 
@@ -53,6 +54,7 @@ public record SessionViewModel(
                 pendingInvites,
                 Session.MIN_PLAYERS_EXCLUDING_GM,
                 Session.MAX_PLAYERS_EXCLUDING_GM,
+                List.copyOf(session.getRequirements()),
                 permissions
         );
     }

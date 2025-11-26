@@ -76,4 +76,10 @@ public class SessionReadModel {
 
     @Column(name = "start_date")
     private LocalDateTime startDate;
+
+    @ElementCollection(fetch = FetchType.EAGER)
+    @CollectionTable(name = "session_read_model_requirements", joinColumns = @JoinColumn(name = "session_id"))
+    @Column(name = "requirement")
+    @Builder.Default
+    private Set<String> requirements = new HashSet<>();
 }

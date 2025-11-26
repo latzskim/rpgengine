@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -17,13 +18,15 @@ import java.time.LocalDateTime;
 public class UpdateSessionForm {
     private String title;
     private String description;
-    
+
     @DateTimeFormat(pattern = "yyyy-MM-dd'T'HH:mm")
     private LocalDateTime startDate;
-    
+
     private Integer durationInMinutes;
     private DifficultyLevel difficultyLevel;
     private Visibility visibility;
     private Integer minPlayers;
     private Integer maxPlayers;
+    private List<String> requirements;
+    private String customRequirements;
 }

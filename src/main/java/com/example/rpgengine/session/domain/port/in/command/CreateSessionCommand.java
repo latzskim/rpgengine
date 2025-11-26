@@ -5,6 +5,7 @@ import com.example.rpgengine.session.domain.valueobject.UserId;
 import com.example.rpgengine.session.domain.valueobject.Visibility;
 
 import java.time.LocalDateTime;
+import java.util.Set;
 
 public record CreateSessionCommand(
         UserId owner,
@@ -15,6 +16,7 @@ public record CreateSessionCommand(
         DifficultyLevel difficultyLevel,
         Visibility visibility,
         Integer minPlayers,
-        Integer maxPlayers
+        Integer maxPlayers,
+        Set<String> requirements
 ) {
 }

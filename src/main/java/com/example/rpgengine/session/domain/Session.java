@@ -22,6 +22,8 @@ public class Session {
 
     public static final int MAX_PLAYERS_EXCLUDING_GM = 10;
 
+    public static final int MAX_REQUIREMENTS = 10;
+
     @EmbeddedId
     private SessionId id;
 
@@ -50,6 +52,11 @@ public class Session {
 
     @Column(name = "max_players", nullable = false)
     private int maxPlayers = 10;
+
+    @ElementCollection
+    @CollectionTable(name = "session_requirements", joinColumns = @JoinColumn(name = "session_id"))
+    @Column(name = "requirement")
+    private Set<String> requirements = new HashSet<>();
 
     @Enumerated(EnumType.STRING)
     @Column(name = "visibility", nullable = false)
@@ -108,9 +115,11 @@ public class Session {
             DifficultyLevel difficulty,
             Visibility visibility,
             Integer minPlayers,
-            Integer maxPlayers
+            Integer maxPlayers,
+            Set<String> requirements
     ) {
         validatePlayersRange(minPlayers, maxPlayers);
+        validateRequirements(requirements);
 
 
         this.id = new SessionId(UUID.randomUUID());
@@ -123,6 +132,7 @@ public class Session {
         this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
         this.visibility = visibility;
+        this.requirements = requirements != null ? requirements : new HashSet<>();
         this.inviteCode = String.valueOf(new Random().nextInt(100_000, 999_999));
 
         var gmParticipant = new SessionParticipant(ownerId, ParticipantRole.GAMEMASTER);
@@ -138,7 +148,8 @@ public class Session {
                 this.difficulty,
                 this.visibility,
                 this.minPlayers,
-                this.maxPlayers
+                this.maxPlayers,
+                this.requirements
         ));
     }
 
@@ -150,13 +161,15 @@ public class Session {
             DifficultyLevel difficulty,
             Visibility visibility,
             Integer minPlayers,
-            Integer maxPlayers
+            Integer maxPlayers,
+            Set<String> requirements
     ) {
         if (this.status != SessionStatus.DRAFT) {
             throw new SessionStatusException(format("cannot update session in status: %s", this.status));
         }
 
         validatePlayersRange(minPlayers, maxPlayers);
+        validateRequirements(requirements);
 
         this.title = title;
         this.description = description;
@@ -166,6 +179,7 @@ public class Session {
         this.visibility = visibility;
         this.minPlayers = minPlayers;
         this.maxPlayers = maxPlayers;
+        this.requirements = requirements != null ? requirements : new HashSet<>();
 
         this.domainEvents.add(new SessionUpdated(
                 this.id,
@@ -176,7 +190,8 @@ public class Session {
                 this.difficulty,
                 this.visibility,
                 this.minPlayers,
-                this.maxPlayers
+                this.maxPlayers,
+                this.requirements
         ));
     }
 
@@ -191,6 +206,12 @@ public class Session {
 
         if (minPlayers > maxPlayers) {
             throw new SessionValidationException("invalid players range");
+        }
+    }
+
+    private static void validateRequirements(Set<String> requirements) {
+        if (requirements != null && requirements.size() > MAX_REQUIREMENTS) {
+            throw new SessionValidationException(format("requirements cannot be greater than %d", MAX_REQUIREMENTS));
         }
     }
 

@@ -48,7 +48,8 @@ class SessionCommandService implements SessionCommandServicePort {
                 createSessionCommand.difficultyLevel(),
                 createSessionCommand.visibility(),
                 createSessionCommand.minPlayers(),
-                createSessionCommand.maxPlayers()
+                createSessionCommand.maxPlayers(),
+                createSessionCommand.requirements()
         );
 
         var storedSession = sessionRepositoryPort.save(session);
@@ -115,7 +116,8 @@ class SessionCommandService implements SessionCommandServicePort {
                 cmd.difficultyLevel(),
                 cmd.visibility(),
                 cmd.minPlayers(),
-                cmd.maxPlayers()
+                cmd.maxPlayers(),
+                cmd.requirements()
         );
 
         sessionRepositoryPort.save(session);
