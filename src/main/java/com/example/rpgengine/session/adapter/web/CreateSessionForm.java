@@ -9,6 +9,7 @@ import lombok.Setter;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Getter
 @Setter
@@ -26,4 +27,6 @@ public class CreateSessionForm {
     private Visibility visibility;
     private Integer minPlayers;
     private Integer maxPlayers;
+    private List<String> requirements;
+    private String customRequirements;
 }

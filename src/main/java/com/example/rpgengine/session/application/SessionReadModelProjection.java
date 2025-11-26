@@ -48,6 +48,7 @@ class SessionReadModelProjection {
                 .approvedPlayers(new HashSet<>())
                 .pendingInvites(new HashSet<>())
                 .estimatedDurationInMinutes(event.estimatedDurationInMinutes())
+                .requirements(event.requirements())
                 .build();
 
         sessionReadModelRepositoryPort.save(sessionReadModel);
@@ -64,6 +65,7 @@ class SessionReadModelProjection {
         session.setEstimatedDurationInMinutes(event.estimatedDurationInMinutes());
         session.setDifficulty(event.difficulty());
         session.setVisibility(event.visibility());
+        session.setRequirements(event.requirements());
 
         // TODO: handle min/max players
 
