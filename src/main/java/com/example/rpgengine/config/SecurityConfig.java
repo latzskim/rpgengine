@@ -72,7 +72,10 @@ public class SecurityConfig {
     SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-                .formLogin(Customizer.withDefaults())
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .permitAll()
+                )
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/access-denied", "/error").permitAll()
                         .requestMatchers("/css/**", "/favicon.ico", "/favicon.png").permitAll()
