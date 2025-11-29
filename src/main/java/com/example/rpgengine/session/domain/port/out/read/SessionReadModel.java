@@ -36,7 +36,7 @@ public class SessionReadModel {
     @JoinColumn(name = "owner_id", insertable = false, updatable = false)
     private UserReadModel owner;
 
-    @Column(name = "description")
+    @Column(name = "description", columnDefinition = "varchar(2048)")
     private String description;
 
     @ManyToMany(fetch = FetchType.EAGER)
