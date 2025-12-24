@@ -2,7 +2,7 @@ package com.example.rpgengine.session.adapter.web;
 
 import com.example.rpgengine.session.domain.exception.SessionForbiddenException;
 import com.example.rpgengine.session.domain.exception.SessionNotFoundException;
-import com.example.rpgengine.session.domain.exception.SessionStatusException;
+import com.example.rpgengine.session.domain.exception.SessionStateException;
 import com.example.rpgengine.session.domain.exception.SessionValidationException;
 import com.example.rpgengine.session.domain.port.in.SessionCommandServicePort;
 import com.example.rpgengine.session.domain.port.in.SessionViewQueryServicePort;
@@ -117,7 +117,7 @@ class SessionController {
                         mergedReqs
                 ));
                 return "redirect:/sessions/" + id;
-            } catch (SessionValidationException | SessionStatusException e) {
+            } catch (SessionValidationException | SessionStateException e) {
                 model.addAttribute("errorMessage", e.getMessage());
                 model.addAttribute("updateSessionCommand", form);
                 model.addAttribute("sessionId", id);

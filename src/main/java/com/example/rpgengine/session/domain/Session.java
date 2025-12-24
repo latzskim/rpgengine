@@ -165,7 +165,7 @@ public class Session {
             Set<String> requirements
     ) {
         if (this.status != SessionStatus.DRAFT) {
-            throw new SessionStatusException(format("cannot update session in status: %s", this.status));
+            throw new SessionStateException(format("cannot update session in status: %s", this.status));
         }
 
         validatePlayersRange(minPlayers, maxPlayers);
@@ -278,11 +278,11 @@ public class Session {
 
     public void scheduleSession() {
         if (this.status != SessionStatus.DRAFT) {
-            throw new SessionStatusException(format("cannot schedule session in status: %s", this.status));
+            throw new SessionStateException(format("cannot schedule session in status: %s", this.status));
         }
 
         if (this.startDate == null) {
-            throw new SessionStatusException("session must have start date");
+            throw new SessionStateException("session must have start date");
 
         }
 
@@ -319,7 +319,7 @@ public class Session {
 
     public void delete() {
         if (this.status != SessionStatus.DRAFT) {
-            throw new SessionStatusException(format("cannot delete session in status: %s", this.status));
+            throw new SessionStateException(format("cannot delete session in status: %s", this.status));
         }
         this.domainEvents.add(new SessionStatusEvent.SessionHardDeleted(this.id));
     }
@@ -334,4 +334,20 @@ public class Session {
         return this.ownerId.equals(userId);
     }
 
+    public void tryAutoStart() {
+        if (status != SessionStatus.SCHEDULED) {
+            throw new SessionStateException(format("cannot start session in status: %s", this.status));
+        }
+
+        if (participants.size() < minPlayers || participants.size() > maxPlayers) {
+            status = SessionStatus.CANCELLED;
+            this.cancelledAt = LocalDateTime.now();
+            this.domainEvents.add(new SessionStatusEvent.SessionCancelled(this.id, this.cancelledAt));
+            // TODO: add cancel reason
+            return;
+        }
+
+        this.startedAt = LocalDateTime.now();
+        this.domainEvents.add(new SessionStatusEvent.SessionStarted(this.id, this.startedAt));
+    }
 }

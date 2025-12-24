@@ -10,11 +10,18 @@ import com.example.rpgengine.session.domain.port.in.command.*;
 import com.example.rpgengine.session.domain.port.out.SessionRepositoryPort;
 import com.example.rpgengine.session.domain.port.out.UserPort;
 import com.example.rpgengine.session.domain.valueobject.SessionId;
+import com.example.rpgengine.session.domain.valueobject.SessionStatus;
 import jakarta.transaction.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.ApplicationEventPublisher;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
+import java.time.Clock;
 import java.time.Duration;
+import java.time.LocalDateTime;
+import java.util.concurrent.TimeUnit;
 
 @Service
 @Transactional
@@ -22,6 +29,8 @@ class SessionCommandService implements SessionCommandServicePort {
     private final SessionRepositoryPort sessionRepositoryPort;
     private final UserPort userPort;
     private final ApplicationEventPublisher eventPublisher;
+
+    private static final Logger logger = LoggerFactory.getLogger(SessionCommandService.class);
 
     public SessionCommandService(
             SessionRepositoryPort sessionRepositoryPort,
@@ -164,5 +173,28 @@ class SessionCommandService implements SessionCommandServicePort {
         sessionRepositoryPort.delete(session);
 
         session.getDomainEvents().forEach(eventPublisher::publishEvent);
+    }
+
+    @Override
+    @Scheduled(fixedRate = 1, timeUnit = TimeUnit.MINUTES)
+    // TODO: local date time vs offset date time
+    public void processScheduledSessions() {
+        var startDate = LocalDateTime.now(Clock.systemUTC());
+        sessionRepositoryPort.findByStartDateLessThanEqualAndStatus(startDate, SessionStatus.SCHEDULED)
+                .forEach(ses -> {
+                    try {
+                        processScheduledSession(ses);
+                    } catch (IllegalStateException e) {
+                        logger.error("failed to process session: {}", ses.getId().getId(), e);
+                    }
+                });
+    }
+
+    private void processScheduledSession(Session ses) {
+        ses.tryAutoStart();
+
+        sessionRepositoryPort.save(ses);
+
+        ses.getDomainEvents().forEach(eventPublisher::publishEvent);
     }
 }

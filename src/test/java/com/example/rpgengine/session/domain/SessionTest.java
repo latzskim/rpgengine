@@ -272,7 +272,7 @@ class SessionTest {
         session.scheduleSession();
 
         // when & then:
-        assertThrows(SessionStatusException.class, () -> session.update(
+        assertThrows(SessionStateException.class, () -> session.update(
                 "Title", "Desc", LocalDateTime.now(), Duration.ofHours(1),
                 DifficultyLevel.EASY, Visibility.PUBLIC, 2, 5, Set.of()
         ));
@@ -319,14 +319,14 @@ class SessionTest {
         var session = new Session();
 
         // when & then:
-        assertThrows(SessionStatusException.class, session::scheduleSession);
+        assertThrows(SessionStateException.class, session::scheduleSession);
 
         // given session with start date that has been already scheduled:
         session = makePublicSession();
         session.scheduleSession(); // already scheduled
 
         // when & then
-        assertThrows(SessionStatusException.class, session::scheduleSession);
+        assertThrows(SessionStateException.class, session::scheduleSession);
     }
 
     @Test
@@ -420,7 +420,7 @@ class SessionTest {
         session.scheduleSession();
 
         // when & then:
-        assertThrows(SessionStatusException.class, session::delete);
+        assertThrows(SessionStateException.class, session::delete);
     }
 
     private static Stream<Arguments> provideJoinToPublicSession() {

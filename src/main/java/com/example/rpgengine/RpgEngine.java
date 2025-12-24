@@ -8,11 +8,13 @@ import com.example.rpgengine.session.domain.port.in.query.SortField;
 import com.example.rpgengine.session.domain.valueobject.SessionStatus;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @SpringBootApplication
+@EnableScheduling
 public class RpgEngine {
     static void main(String[] args) {
         SpringApplication.run(RpgEngine.class, args);

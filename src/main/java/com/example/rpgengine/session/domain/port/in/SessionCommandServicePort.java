@@ -15,4 +15,6 @@ public interface SessionCommandServicePort {
     void scheduleSession(ScheduleSessionCommand scheduleSessionCommand);
 
     void deleteSession(DeleteSessionCommand deleteSessionCommand);
+
+    void processScheduledSessions();
 }

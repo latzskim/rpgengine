@@ -143,5 +143,23 @@ class SessionReadModelProjection {
         this.sessionUserReadModelRepositoryPort.save(sessionUserReadModel);
     }
 
+    @EventListener
+    void on (SessionStatusEvent.SessionStarted event) {
+        var session = sessionReadModelRepositoryPort.findById(event.id())
+                .orElseThrow(SessionNotFoundException::new);
 
+        session.setStatus(SessionStatus.IN_PROGRESS);
+        // TODO: startedAt to show time?
+        sessionReadModelRepositoryPort.save(session);
+    }
+
+    @EventListener
+    void on (SessionStatusEvent.SessionCancelled event) {
+        var session = sessionReadModelRepositoryPort.findById(event.id())
+                .orElseThrow(SessionNotFoundException::new);
+
+        session.setStatus(SessionStatus.CANCELLED);
+        // TODO: canceledAt to show time?
+        sessionReadModelRepositoryPort.save(session);
+    }
 }
