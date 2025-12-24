@@ -348,6 +348,7 @@ public class Session {
         }
 
         this.startedAt = LocalDateTime.now();
+        this.status = SessionStatus.IN_PROGRESS;
         this.domainEvents.add(new SessionStatusEvent.SessionStarted(this.id, this.startedAt));
     }
 }

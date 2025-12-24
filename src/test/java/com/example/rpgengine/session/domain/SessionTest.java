@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.IntStream;
 import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -421,6 +422,38 @@ class SessionTest {
 
         // when & then:
         assertThrows(SessionStateException.class, session::delete);
+    }
+
+    @Test
+    public void shouldStartSession() {
+        // given:
+        var session = makePublicSession();
+        session.scheduleSession();
+
+        IntStream.range(0, validMinPlayers).forEach( _ -> {
+            session.addParticipant(UserId.fromUUID(UUID.randomUUID()));
+        });
+
+        // when:
+        session.tryAutoStart();
+
+        // then:
+        assertThat(session.getStatus()).isEqualTo(SessionStatus.IN_PROGRESS);
+        assertThat(session.getStartedAt()).isNotNull();
+    }
+
+    @Test
+    public void shouldCancelSessionWhenStartingInvalidSession() {
+        // given:
+        var session = makePublicSession();
+        session.scheduleSession();
+
+        // when:
+        session.tryAutoStart();
+
+        // then:
+        assertThat(session.getStatus()).isEqualTo(SessionStatus.CANCELLED);
+        assertThat(session.getCancelledAt()).isNotNull();
     }
 
     private static Stream<Arguments> provideJoinToPublicSession() {
